@@ -1,15 +1,13 @@
 __author__ = 'Martin Tiefengraber'
 
-from os import chdir
-from sys import path as syspath
-syspath.append("C:/Blick/src")
+import sys
+import os
+# Define the desired path
+path = os.path.normpath("C:/Blick/src")
+os.chdir(path)
 from numpy import arange, polyval, ones, dstack, \
     isnan, where, nan, array, split, argmin, argmax
 from glob import glob
-from os import path
-import os
-from copy import deepcopy
-from datetime import datetime
 
 from blick_psio import *
 psio = blick_psio()

@@ -10,7 +10,10 @@ from copy import deepcopy
 
 from sys import path as syspath
 syspath.append("C:/Blick/scripts/auxilary")
-
+import os
+# Define the desired path
+path = os.path.normpath("C:/Blick/src")
+os.chdir(path)
 from CINDI3.GetDataOfRoutineBlick import GetDataOfRoutine
 
 from blick_params import blick_params

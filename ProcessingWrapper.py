@@ -3,12 +3,11 @@
 # This "poor man's" wrapper does not do any error handling!
 
 # IMPORT modules
-from sys import path as syspath
-from os import path as ospath
-
+import os
 from blickp_processingsetups import FittingSetup
-
-syspath.append("C:/Blick/src")
+# Define the desired path
+path = os.path.normpath("C:/Blick/src")
+os.chdir(path)
 from glob import glob
 from numpy import array, nan, where, argmax, ones
 from datetime import datetime, date, timedelta

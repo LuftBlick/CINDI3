@@ -6,9 +6,8 @@ from sys import exit as sysexit
 
 
 def GetLineEntry(filename, signal, delim, meth):
-
-    # opoen text file
-    fleParams = open(filename, 'r')
+    # open text file
+    fleParams = open("C:/Blick/src/CINDI3/" + filename, 'r')
     # localize wanted text line
     noline = None
     for i, l in enumerate(fleParams):

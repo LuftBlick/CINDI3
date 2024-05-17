@@ -1,14 +1,14 @@
 __author__ = 'Martin Tiefengraber'
-
-from sys import path as syspath
-syspath.append("C:/Blick/src")
+import sys
+import os
+# Define the desired path
+path = os.path.normpath("C:/Blick/src")
+os.chdir(path)
 from os import path as ospath
 from numpy import array, argmin, hstack, loadtxt, savetxt, where, ones, polyval, unique, asarray, in1d, nan, isnan, \
     nanmean, sum, nansum
 from datetime import datetime, timedelta
 from matplotlib.dates import num2date, date2num
-from shutil import copy as shcopy
-from copy import copy
 
 from CINDI3.params.InputParams import LoadParams
 from CINDI3.GetDataOfRoutineBlick import GetDataOfRoutine
@@ -18,7 +18,7 @@ from blick_countconverter import regrid_f
 from blick_io import blick_io
 io = blick_io()
 
-from CINDI3Formats.CINDI3SemiBlindDirSun import \
+from CINDI3.CINDI3Formats.CINDI3SemiBlindDirSun import \
     CINDI3SemiBlind_NO2vis, \
     CINDI3SemiBlind_NO2visSmall, \
     CINDI3SemiBlind_NO2uv, \
