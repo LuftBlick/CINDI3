@@ -148,6 +148,30 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             a2DatL1 = loadtxt(sPthBlickL1Glob,
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
+            # Compute the mean for each target wavelength within the specified tolerance
+            intensity = a2DatL1[:, 81:2129]
+            # Apply the wavelength shift correction on the wavelength vector
+            mean_Wvl = np.array(
+                [280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470,
+                 480, 490, 500, 510, 520, 530, 540])
+            a1Wvl = a1Wvl + mean(a2DatL1[:, 72])
+            # Tolerance for matching wavelengths
+            tolerance = 0.5
+            # Prepare a dictionary to hold the means
+            mean_intensities = {}
+            for wvl in mean_Wvl:
+                # Find indices of data points within the specified range
+                mask = (a1Wvl >= wvl - tolerance) & (a1Wvl <= wvl + tolerance)
+                # Extract these data points
+                filtered_data = intensity[:, mask]
+                # Calculate the mean if there are any data points within the range
+                if filtered_data.size > 0:
+                    mean_value = np.mean(filtered_data, axis=1)
+                else:
+                    mean_value = np.nan  # Use NaN if there are no points within the range
+                # Store the result into a dictionary for each wavelength between 280-540 nm
+                mean_intensities[wvl] = mean_value
+
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
             for iRtnI in xrange(a2Dat.shape[0]):
@@ -342,9 +366,34 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
         h += '* Col {}: NO2_DSCD_Error (1*10^15 molec/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD_Error (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
-        h += '*DOY UTC Tint SZA SAA Elev Viewing_angle NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error H2O_DSCD_296 H2O_DSCD_296_Error Ring Ring_Error RMS Spectrum_shift Intens(440) CI(425/440) offset_cst NO2_DSCD NO2_DSCD_Error'
+        h += '* Col {}: INORM_280'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_290'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_300'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_310'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_320'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_330'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_340'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_350'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_360'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_380'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_390'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_400'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_410'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_420'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_430'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_440'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_450'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_470'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_480'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_490'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_500'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_510'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_520'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_530'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_540'.format(c - 1, c) + '\n';c += 1
+        h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
 
-        if par['dProdAna'][sProcGas]:
+    if par['dProdAna'][sProcGas]:
             f, ax = subplots(10, 2, figsize=(3, 8))
             idxNoon = argmin(a2DatAct[:, 3])
             fltAm = a2DatAct[:idxNoon, 5] > 85.
@@ -490,6 +539,29 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
             a2DatL1 = loadtxt(sPthBlickL1Glob,
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
+            # Compute the mean for each target wavelength within the specified tolerance
+            intensity = a2DatL1[:, 81:2129]
+            # Apply the wavelength shift correction on the wavelength vector
+            mean_Wvl = np.array(
+                [280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470,
+                 480, 490, 500, 510, 520, 530, 540])
+            a1Wvl = a1Wvl + mean(a2DatL1[:, 72])
+            # Tolerance for matching wavelengths
+            tolerance = 0.5
+            # Prepare a dictionary to hold the means
+            mean_intensities = {}
+            for wvl in mean_Wvl:
+                # Find indices of data points within the specified range
+                mask = (a1Wvl >= wvl - tolerance) & (a1Wvl <= wvl + tolerance)
+                # Extract these data points
+                filtered_data = intensity[:, mask]
+                # Calculate the mean if there are any data points within the range
+                if filtered_data.size > 0:
+                    mean_value = np.mean(filtered_data, axis=1)
+                else:
+                    mean_value = np.nan  # Use NaN if there are no points within the range
+                # Store the result into a dictionary for each wavelength between 280-540 nm
+                mean_intensities[wvl] = mean_value
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
             for iRtnI in xrange(a2Dat.shape[0]):
@@ -664,16 +736,16 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
         h += '* Col {}: VEA: (Viewing Elevation Angle (deg))'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: VAA: (Viewing Azimuth Angle (degree) North=0, East=90)'.format(c - 1, c) + '\n';c += 1
         #> gases
-        h += '* Y{}-Axis (Col {}) = NO2_DSCD_298 (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = NO2_DSCD_298_Error (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = O4_DSCD_293 (1*10^40 molec2/cm5)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = O4_DSCD_293_Error (1*10^40 molec2/cm5)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = NO2_DSCD_220 (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = NO2_DSCD_220_Error (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = O3_DSCD_223 (1*10^20 molecules/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = O3_DSCD_223_Error (1*10^20 molecules/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = H2O_DSCD_296 (1*10^23 molec/cm2)'.format(c-1, c) + '\n'; c += 1
-        h += '* Y{}-Axis (Col {}) = H2O_DSCD_296_Error (1*10^23 molec/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: NO2_DSCD_298 (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: NO2_DSCD_298_Error (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: O4_DSCD_293 (1*10^40 molec2/cm5)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: O4_DSCD_293_Error (1*10^40 molec2/cm5)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: NO2_DSCD_220 (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: NO2_DSCD_220_Error (1*10^15 molec/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: O3_DSCD_223 (1*10^20 molecules/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: O3_DSCD_223_Error (1*10^20 molecules/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: H2O_DSCD_296 (1*10^23 molec/cm2)'.format(c-1, c) + '\n'; c += 1
+        h += '* Col {}: H2O_DSCD_296_Error (1*10^23 molec/cm2)'.format(c-1, c) + '\n'; c += 1
         # > aux fit info
         h += '* Col {}: Ring'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: Ring_Error'.format(c - 1, c) + '\n';c += 1
@@ -685,7 +757,32 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
         h += '* Col {}: NO2_DSCD_Error (1*10^15 molec/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD_Error (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
-        h += '*DOY UTC Tint SZA SAA Elev Viewing_angle NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error H2O_DSCD_296 H2O_DSCD_296_Error Ring Ring_Error RMS Spectrum_shift Intens(440) CI(412/440) offset_cst NO2_DSCD NO2_DSCD_Error'
+        h += '* Col {}: INORM_280'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_290'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_300'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_310'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_320'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_330'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_340'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_350'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_360'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_380'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_390'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_400'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_410'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_420'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_430'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_440'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_450'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_470'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_480'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_490'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_500'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_510'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_520'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_530'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_540'.format(c - 1, c) + '\n';c += 1
+        h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
@@ -732,9 +829,27 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
             a2DatL1 = loadtxt(sPthBlickL1Glob,
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
-
+            # Compute the mean for each target wavelength within the specified tolerance
+            intensity = a2DatL1[:,81:2129]
             # Apply the wavelength shift correction on the wavelength vector
-            #a1Wvl = a1Wvl + a2DatL1[72,:]
+            mean_Wvl = np.array([280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540])
+            a1Wvl = a1Wvl + mean(a2DatL1[:,72])
+            # Tolerance for matching wavelengths
+            tolerance = 0.5
+            # Prepare a dictionary to hold the means
+            mean_intensities = {}
+            for wvl in mean_Wvl:
+                # Find indices of data points within the specified range
+                mask = (a1Wvl >= wvl - tolerance) & (a1Wvl <= wvl + tolerance)
+                # Extract these data points
+                filtered_data = intensity[:, mask]
+                # Calculate the mean if there are any data points within the range
+                if filtered_data.size > 0:
+                    mean_value = np.mean(filtered_data, axis=1)
+                else:
+                    mean_value = np.nan # Use NaN if there are no points within the range
+                # Store the result into a dictionary for each wavelength between 280-540 nm
+                mean_intensities[wvl] = mean_value
 
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             for iRtnI in xrange(a2Dat.shape[0]):
@@ -761,45 +876,34 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         #> Write data
         ##> Meta info
         a2DatAct = array([]).reshape((a2Dat.shape[0], 0))
-        for addCol in [3, 6, 8, 9, 12, 14]:
-            if addCol == 3:
+        for addCol in [17, 6, 8, 9, 20, 22]:
+            if addCol == 17:
                 ###> Decimal doy
-                delta = (date(int(str(sDate)[:4]), 1, 1) - date(2000, 1, 1)).days
+                delta = (date(int(str(sDate)[:4]), 1, 1) - date(2024, 1, 1)).days
                 a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]] - delta))
                 ###> Decimal hour of day
                 a2DatAct = hstack((a2DatAct, a2Dat[:, [2]] % 1 * 24.))
-            elif addCol == 12:
+            elif addCol == 20:
                 ###> zenith viewing angle to elevation angle
                 ####> discriminate between relative and absolute viewing angles
                 a1VZA = a2Dat[:, [addCol - 1]]
                 a1VZAMode = a2Dat[:, [addCol]]
                 a1VZA[a1VZAMode == 0] = a1VZA[a1VZAMode == 0]
                 a1VZA[a1VZAMode == 1] = a2Dat[(a1VZAMode == 1).squeeze(), 8 - 1] + a1VZA[a1VZAMode == 1]
-                ###> Correct Pan128s2 before 20160915, correct all angles except zenith measurement
-                if (sPan == 'Pandora128s2') and (int(sDate) <= 20160915):
-                    print 'VA correction applied'
-                    fCorVZA = -0.428
-                    a1VZA[a1VZA > 5.] += fCorVZA
+
                 ###> Convert to nomial elevation angles
                 if par['doOvrwVZA']:
                     a1Elev = ConvertNominalVZA(par, a2Dat[:, 0], a1VZA, int(sPan.split('Pandora')[-1][-1]), doElev=True)
                 else:
                     a1Elev = 90. - a1VZA
                 a2DatAct = hstack((a2DatAct, a1Elev))
-            elif addCol == 14:
+            elif addCol == 22:
                 ###> azimuth viewing angle to elevation angle
                 ####> discriminate between relative and absolute viewing angles
                 a1VAA = a2Dat[:, [addCol - 1]]
                 a1VAAMode = a2Dat[:, [addCol]]
                 a1VAA[a1VZAMode == 0] = a1VAA[a1VAAMode == 0]
                 a1VAA[a1VZAMode == 1] = a2Dat[(a1VAAMode == 1).squeeze(), 9 - 1] + a1VAA[a1VAAMode == 1]
-                ###> Correct Pan128s2 before 20160915, correct all angles except zenith measurement
-                if (sPan == 'Pandora128s2') and (int(sDate) <= 20160915):
-                    print 'VA correction applied'
-                    fCorVAA = 0.246
-                    a1VAA[a1VZA > 5.] += fCorVAA
-                a2DatAct = hstack((a2DatAct, a1VAA))
-            else:
                 a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]]))
 
         ##> Gases
@@ -821,7 +925,7 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         a2DatAct = hstack((a2DatAct, ones((a2DatAct.shape[0], 1)) * -999))
 
         ###> O2O2 DSC and rescale
-        for addCol in [35, 36]:
+        for addCol in [25, 26]:
             a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]] * 1.e-40))
             a2DatAct[bOvrw, -1] = -999
         ####> T = T1
@@ -855,15 +959,15 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         a2DatAct = hstack((a2DatAct, ones((a2DatAct.shape[0], 1)) * -999))
 
         ###> BrO DSC and rescale
-        for addCol in [24, 25]:
+        for addCol in [34, 35]:
             a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]] * 1.e-15))
             a2DatAct[bOvrw, -1] = -999
         ###> HCHO DSC and rescale
-        for addCol in [27, 28]:
+        for addCol in [36, 37]:
             a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]] * gp.unitcf[1][1] * 1.e-15))
             a2DatAct[bOvrw, -1] = -999
         ###> Ring DSC and rescale
-        for addCol in [46, 47]:
+        for addCol in [38, 39]:
             a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]]))
             a2DatAct[bOvrw, -1] = -999
 
@@ -874,10 +978,6 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         ##> Add relative intensity
         a1RelInt[a1RelInt == 0.] = -999
         a2DatAct = hstack((a2DatAct, a1RelInt.reshape((a1RelInt.shape[0], 1))))
-        ##> Add color index
-        a1ColIdx[isinf(a1ColIdx)] = -999
-        a1ColIdx[a1ColIdx == 0.] = -999
-        a2DatAct = hstack((a2DatAct, a1ColIdx.reshape((a1RelInt.shape[0], 1))))
         ##> Add intensity offset
         addCol = 60  # constant term
         a2DatAct = hstack((a2DatAct, a2Dat[:, [addCol - 1]]))
@@ -900,6 +1000,10 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         a2DatAct = hstack((a2DatAct,
                            a2Dat[:, [uxs1 - 1]] * gp.unitcf[1][1] * 1.e-20))
         a2DatAct[bOvrw, -1] = -999
+
+        ##> Add data for each columns for INORM_280-INORM_540
+        #for addCol in range(48, 73):
+        # Please add here the filling of the asci file for INORM_280-INORM_540
 
         # > Write header
         c = 0
@@ -980,7 +1084,8 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         h += '* Col {}: INORM_520'.format(c - 1, c) + '\n'; c += 1
         h += '* Col {}: INORM_530'.format(c - 1, c) + '\n'; c += 1
         h += '* Col {}: INORM_540'.format(c - 1, c) + '\n'; c += 1
-        h += '*DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error'
+        h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
+
         # Intensities from L1 File, without ratio IT 310nm +/- 0.5 nm from vector
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
@@ -1029,6 +1134,29 @@ def CINDI3SemiBlind_HCHO(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             a2DatL1 = loadtxt(sPthBlickL1Glob,
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
+            # Compute the mean for each target wavelength within the specified tolerance
+            intensity = a2DatL1[:, 81:2129]
+            # Apply the wavelength shift correction on the wavelength vector
+            mean_Wvl = np.array(
+                [280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470,
+                 480, 490, 500, 510, 520, 530, 540])
+            a1Wvl = a1Wvl + mean(a2DatL1[:, 72])
+            # Tolerance for matching wavelengths
+            tolerance = 0.5
+            # Prepare a dictionary to hold the means
+            mean_intensities = {}
+            for wvl in mean_Wvl:
+                # Find indices of data points within the specified range
+                mask = (a1Wvl >= wvl - tolerance) & (a1Wvl <= wvl + tolerance)
+                # Extract these data points
+                filtered_data = intensity[:, mask]
+                # Calculate the mean if there are any data points within the range
+                if filtered_data.size > 0:
+                    mean_value = np.mean(filtered_data, axis=1)
+                else:
+                    mean_value = np.nan  # Use NaN if there are no points within the range
+                # Store the result into a dictionary for each wavelength between 280-540 nm
+                mean_intensities[wvl] = mean_value
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
             for iRtnI in xrange(a2Dat.shape[0]):
@@ -1232,7 +1360,32 @@ def CINDI3SemiBlind_HCHO(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
         h += '* Col {}: NO2_DSCD_Error (1*10^15 molec/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD_Error (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
-        h += '*DOY UTC Tint SZA SAA Elev Viewing_angle HCHO_DSCD_297 HCHO_DSCD_297_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_298 NO2_DSCD_298_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error Ring Ring_Error RMS Spectrum_shift Intens(340) CI(340/359) offset_cst offset_lin O3_DSCD O3_DSCD_Error '
+        h += '* Col {}: INORM_280'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_290'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_300'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_310'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_320'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_330'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_340'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_350'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_360'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_380'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_390'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_400'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_410'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_420'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_430'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_440'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_450'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_470'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_480'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_490'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_500'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_510'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_520'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_530'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_540'.format(c - 1, c) + '\n';c += 1
+        h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
@@ -1269,6 +1422,30 @@ def CINDI3SemiBlind_O3vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
             a2DatL1 = loadtxt(sPthBlickL1Glob,
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
+            # Compute the mean for each target wavelength within the specified tolerance
+            intensity = a2DatL1[:, 81:2129]
+            # Apply the wavelength shift correction on the wavelength vector
+            mean_Wvl = np.array(
+                [280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470,
+                 480, 490, 500, 510, 520, 530, 540])
+            a1Wvl = a1Wvl + mean(a2DatL1[:, 72])
+            # Tolerance for matching wavelengths
+            tolerance = 0.5
+            # Prepare a dictionary to hold the means
+            mean_intensities = {}
+            for wvl in mean_Wvl:
+                # Find indices of data points within the specified range
+                mask = (a1Wvl >= wvl - tolerance) & (a1Wvl <= wvl + tolerance)
+                # Extract these data points
+                filtered_data = intensity[:, mask]
+                # Calculate the mean if there are any data points within the range
+                if filtered_data.size > 0:
+                    mean_value = np.mean(filtered_data, axis=1)
+                else:
+                    mean_value = np.nan  # Use NaN if there are no points within the range
+                # Store the result into a dictionary for each wavelength between 280-540 nm
+                mean_intensities[wvl] = mean_value
+
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
             for iRtnI in xrange(a2Dat.shape[0]):
@@ -1503,7 +1680,32 @@ def CINDI3SemiBlind_O3vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         h += '* Col {}: NO2_DSCD_Error (1*10^15 molec/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD_Error (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
-        h += '*DOY UTC Tint SZA SAA Elev Viewing_angle O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_293 O3_DSCD_293_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_298 NO2_DSCD_298_Error NO2_DSCD_220 NO2_DSCD_220_Error H2O_DSCD_296 H2O_DSCD_296_Error Ring Ring_Error RMS Spectrum_shift Intens(500) CI(440/500) offset_cst offset_lin O3_DSCD O3_DSCD_Error NO2_DSCD NO2_DSCD_Error'
+        h += '* Col {}: INORM_280'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_290'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_300'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_310'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_320'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_330'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_340'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_350'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_360'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_380'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_390'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_400'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_410'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_420'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_430'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_440'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_450'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_470'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_480'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_490'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_500'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_510'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_520'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_530'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_540'.format(c - 1, c) + '\n';c += 1
+        h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
@@ -1540,6 +1742,30 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             a2DatL1 = loadtxt(sPthBlickL1Glob,
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
+            # Compute the mean for each target wavelength within the specified tolerance
+            intensity = a2DatL1[:, 81:2129]
+            # Apply the wavelength shift correction on the wavelength vector
+            mean_Wvl = np.array(
+                [280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470,
+                 480, 490, 500, 510, 520, 530, 540])
+            a1Wvl = a1Wvl + mean(a2DatL1[:, 72])
+            # Tolerance for matching wavelengths
+            tolerance = 0.5
+            # Prepare a dictionary to hold the means
+            mean_intensities = {}
+            for wvl in mean_Wvl:
+                # Find indices of data points within the specified range
+                mask = (a1Wvl >= wvl - tolerance) & (a1Wvl <= wvl + tolerance)
+                # Extract these data points
+                filtered_data = intensity[:, mask]
+                # Calculate the mean if there are any data points within the range
+                if filtered_data.size > 0:
+                    mean_value = np.mean(filtered_data, axis=1)
+                else:
+                    mean_value = np.nan  # Use NaN if there are no points within the range
+                # Store the result into a dictionary for each wavelength between 280-540 nm
+                mean_intensities[wvl] = mean_value
+
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
             for iRtnI in xrange(a2Dat.shape[0]):
@@ -1733,9 +1959,34 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
         h += '* Col {}: NO2_DSCD_Error (1*10^15 molec/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
         h += '* Col {}: O3_DSCD_Error (1*10^20 molecules/cm2)'.format(c - 1, c) + '\n';c += 1
-        h += '*DOY UTC Tint SZA SAA Elev Viewing_angle O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_293 O3_DSCD_293_Error NO2_DSCD_298 NO2_DSCD_298_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS Spectrum_shift Intens(340) CI(320/340) offset_cst offset_lin O3_DSCD O3_DSCD_Error'
+        h += '* Col {}: INORM_280'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_290'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_300'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_310'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_320'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_330'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_340'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_350'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_360'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_380'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_390'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_400'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_410'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_420'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_430'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_440'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_450'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_470'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_480'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_490'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_500'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_510'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_520'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_530'.format(c - 1, c) + '\n';c += 1
+        h += '* Col {}: INORM_540'.format(c - 1, c) + '\n';c += 1
+        h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
 
-        if par['dProdAna'][sProcGas]:
+    if par['dProdAna'][sProcGas]:
             f, ax = subplots(10, 2, figsize=(3, 8))
             idxNoon = argmin(a2DatAct[:, 3])
             fltAm = a2DatAct[:idxNoon, 5] > 85.

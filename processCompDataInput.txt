@@ -39,10 +39,10 @@ Viewing azimuth angles to overwrite -> E0:287,287,287,287,287,287,287,287,287,28
 Product aliases for f codes -> NO2uv:co09
 Product reference type -> NO2uv:Ref,ExtRef,SyntOpen; NO2vis:Ref; O3ext:ExtRef; O3vis:Ref
 Product version number -> NO2uv:1; HCHO:2; O3uv:2
-Allowed processing types per reference -> Ref:PROFILE,SKY,SUN; SyntOPEN:SUN; ExtRef:SUN; ExtOPEN:SUN
+Allowed processing types per reference -> Ref:PROFILE,SKY; SyntOPEN:SUN; ExtRef:SUN; ExtOPEN:SUN
 Calibration file suffixes for O4 -> ICF:_CF_v1d20160601_Finkenzeller_2022.txt,_CF_v1d20160601_ThalmanAndVolkamer_2013.txt
 L2Fit file number of header lines -> NO2vis:172; NO2visSmall:101; NO2uv:172; HCHO:108; O3vis:107; O3uv:98
 L1 file number of header lines -> 128s1:109; 128s2:85; 129s1:91; 129s2:85; 118s1:90; 28s1:88; 32s1:90
-L1 file start of spectra column -> 128s1:22; 128s2:59; 129s1:65; 129s2:59; 118s1:64; 28s1:62; 32s1:64
+L1 file start of spectra column -> 128s1:81; 128s2:59; 129s1:65; 129s2:59; 118s1:64; 28s1:62; 32s1:64
 Institution and instrument number assignment -> 128s1:LuftBlick,35; 118s2:LuftBlick,36; 129s1:LuftBlick,34; 118s1:KNMI,31
 Analyze product -> NO2vis:False; NO2visSmall:False; NO2uv:True; HCHO:False; O3vis:False; O3uv:False
