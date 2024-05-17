@@ -23,7 +23,14 @@ To ensure full compatibility and functionality, clone the CINDI3 repository dire
 ## Running the CINDI3 code
 In order to process your L0 files from the CINDI3 campaign, please place them as usually into the C:/Blick/data/L0 folder. 
 1. Please create an output folder for the CINDI ASCII files named "CINDI3" into C:/Blick/data.
-2. Jump into C:/Blick/src/CINDI3. In order to process L0 to L2Fit data and convert the SCD's finally into the needed CINDI ASCII format run the main function with the following command.
+2. Please adjust the processing parameters in the configuration file named "processCompDataInput.txt":
+   - Insert the dates you want to process.
+   - Select the spectral fitting reference datetime.
+   - Specify the spectral fitting reference from routine.
+   - Specify the spectral fitting reference from routine number of measurements for routine.
+   - Blick processing setup code(s) [s,f,r] gives you all available f-codes.
+   - Last Row: Please set the product which has to be analysed to "True".
+3. Now jump into C:/Blick/src/CINDI3. In order to process L0 to L2Fit data and convert the SCD's finally into the needed CINDI ASCII format run the main function with the following command.
     ```bash
     C:\Python27\python.exe main_makeCompData.py
 
