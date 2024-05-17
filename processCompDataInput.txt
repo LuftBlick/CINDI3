@@ -1,0 +1,48 @@
+###########################
+## PROCESSING PARAMETERS ##
+Pandora unit(s) with spectrometers -> 128:1
+Locations -> Cabauw
+Date(s) to process [UTC] -> 20160927
+Spectral fitting reference datetime [UTC] -> 20160927T113500Z
+#       if only time is given, for each day the reference is produced. When datetime is given, this us used for all dates.
+#       if the same number of times
+Average interval around reference datetime [min] -> 6
+#       if = 0, only the reference datetime is considered (one measurement, no average)
+Maximum allowed time delay of reference time to nearest measured spectrum [min] -> 15
+Spectral fitting reference from routine -> ZR
+Spectral fitting reference from routine number of measurements for routine -> 2
+Blick processing setup code(s) [s,f,r] -> s:mca1; f:co09; r:nvh3
+Blick processing setup q-code(s) [qs,qf,qr] -> qs:st00; qf:1; qr:-1
+Blick processing setup levels [s,f,r] -> s:True; f:True; r:False
+Intensity wavelength average pm [nm] -> 1.
+###########################
+## PATHS ##################
+Blick root directory -> C:/Blick/
+Operation file directory -> data/operationfiles/
+Calibration file directory -> data/calibrationfiles/
+Pslib directory -> C:/Blick/data/lib/pslib/
+Reference data directory -> C:/Blick/data/
+L0 data directory -> C:/Blick/data/L0/
+L1 data directory -> C:/Blick/data/L1/
+L2 data directory -> C:/Blick/data/L2/
+L2Fit data directory -> C:/Blick/data/L2Fit/
+Processing setup file directory -> C:/Blick/lib/pslib/Blick_ProcessingSetups_cindi-3.h5
+###########################
+## CINDI-3 CAMPAIGN #######
+Campaign data directory -> C:/Blick/data/CINDI3/
+Calculate external reference -> True
+Process data -> True
+Convert to CINDI3 blind comparison format -> True
+Overwrite nominal viewing zenith angles -> False
+Viewing zenith angles to overwrite -> E0:89,88,87,86,85,84,82,75,60,0; E1:89,88,87,86,85,84,82,75,60,0; E2:89,87,85,75; E3:89,87,85,75,0; E4:89,87,85,75; E5:89,87,85,75,0; E6:89,87,85,75; E7:89,87,85,75,0; E8:89,88,87,86,85,84,82,75,60,0; E9:89,88,87,86,85,84,82,75,60,0; EH:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H2:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H3:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H4:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H5:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; ZC:0; ZR:0
+Viewing azimuth angles to overwrite -> E0:287,287,287,287,287,287,287,287,287,287; E1:287,287,287,287,287,287,287,287,287,287; E2:355,355,355,355; E3:45,45,45,45,45; E4:95,95,95,95; E5:135,135,135,135,135; E6:195,195,195,195; E7:245,245,245,245,245; E8:287,287,287,287,287,287,287,287,287,287; E9:287,287,287,287,287,287,287,287,287,287; EH:287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.; ZC:0; ZR:0
+Product aliases for f codes -> NO2uv:co09
+Product reference type -> NO2uv:Ref,ExtRef,SyntOpen; NO2vis:Ref; O3ext:ExtRef; O3vis:Ref
+Product version number -> NO2uv:1; HCHO:2; O3uv:2
+Allowed processing types per reference -> Ref:PROFILE,SKY,SUN; SyntOPEN:SUN; ExtRef:SUN; ExtOPEN:SUN
+Calibration file suffixes for O4 -> ICF:_CF_v1d20160601_Finkenzeller_2022.txt,_CF_v1d20160601_ThalmanAndVolkamer_2013.txt
+L2Fit file number of header lines -> NO2vis:172; NO2visSmall:101; NO2uv:172; HCHO:108; O3vis:107; O3uv:98
+L1 file number of header lines -> 128s1:109; 128s2:85; 129s1:91; 129s2:85; 118s1:90; 28s1:88; 32s1:90
+L1 file start of spectra column -> 128s1:22; 128s2:59; 129s1:65; 129s2:59; 118s1:64; 28s1:62; 32s1:64
+Institution and instrument number assignment -> 128s1:LuftBlick,35; 118s2:LuftBlick,36; 129s1:LuftBlick,34; 118s1:KNMI,31
+Analyze product -> NO2vis:False; NO2visSmall:False; NO2uv:True; HCHO:False; O3vis:False; O3uv:False
