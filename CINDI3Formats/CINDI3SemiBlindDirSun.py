@@ -39,6 +39,10 @@ ylimOffs = [-0.01, 0.01]
 ylimOffsLin = [-0.01, 0.01]
 ylimRing = [-0.1, 0.1]
 
+proctype2ref = {'ONLYL1': 0, 'SUN': 2, 'MOON': 3, 'SKY': 4, 'TARGET': 5, 'PROFILE': 6, 'ALMUCANTAR': 7, 'LAMP': 8,
+                'SPECIAL': 9}
+
+
 def LatestFile(lPth, bIsL2Tot=False):
     lVersC = []
     lVersP1 = []
@@ -811,7 +815,7 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
                 curr_ref = curr_ref
 
             curr_allow_proctype = sProcType[curr_ref]
-            proctype2ref = {'ONLYL1': 0, 'SUN': 2, 'MOON': 3, 'SKY': 4, 'TARGET': 5, 'PROFILE': 6, 'ALMUCANTAR': 7, 'LAMP': 8, 'SPECIAL': 9}
+            # proctype2ref = {'ONLYL1': 0, 'SUN': 2, 'MOON': 3, 'SKY': 4, 'TARGET': 5, 'PROFILE': 6, 'ALMUCANTAR': 7, 'LAMP': 8, 'SPECIAL': 9}
             curr_allow_proctype_index = [proctype2ref[key] for key in curr_allow_proctype if key in proctype2ref]
             mask = np.isin(a2Dat[:,6], curr_allow_proctype_index)
             a2Dat = a2Dat[mask]
@@ -830,12 +834,12 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
                               converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                               skiprows=nHeadL1)
             # Compute the mean for each target wavelength within the specified tolerance
-            intensity = a2DatL1[:,81:2129]
+            intensity = a2DatL1[:,par['dL1CcCol']:par['dL1CcCol']+2048]
             # Apply the wavelength shift correction on the wavelength vector
             mean_Wvl = np.array([280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540])
             a1Wvl = a1Wvl + mean(a2DatL1[:,72])
             # Tolerance for matching wavelengths
-            tolerance = 0.5
+            tolerance = par['fWvlIntAvg']
             # Prepare a dictionary to hold the means
             mean_intensities = {}
             for wvl in mean_Wvl:
