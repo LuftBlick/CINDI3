@@ -125,7 +125,7 @@ def ProcessExternalReference(par):
             for sSCode, iQSCode in zip(par['dSCode']['s'], par['dSCode']['qs']):
                 dFuFiAll[sPanC][iSpec][sSCode] = {}
                 GD = GetDataOfRoutine(int(sPanC), iSpec, par['sLoc'], par['sBlickRootPth'], par['sL0Pth'],
-                                      par['sOFPth'], par['sCFPth'], [sSCode, -1, -1], [iQSCode, -1, -1])
+                                      par['sOFPth'], par['sCFPth'], par['CfSuffixRef'], [sSCode, -1, -1], [iQSCode, -1, -1])
                 #> Reformat date vector
                 a1Date = array([datetime.strptime(str(par['iDate'][i]), '%Y%m%d')
                                 for i in xrange(len(par['iDate']))])
