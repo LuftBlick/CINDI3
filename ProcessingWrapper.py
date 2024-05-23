@@ -5,6 +5,7 @@
 # IMPORT modules
 import os
 import h5py
+import shutil
 
 # Define the desired path
 path = os.path.normpath("C:/Blick/src")
@@ -40,7 +41,12 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
     dirs['data_dir_icf'] = sBlickRootPth + pthCF
 
     from main_makeCompData import GetExternalReferenceFileName
-    with h5py.File(pthPF, 'r+') as pssetup:
+    # copy orginal processing setups file to temporary setups file
+    pthPForg = copy(pthPF)
+    pthPFtmp = ''.join(pthPForg.partition('ProcessingSetups')[:2]) + '_temp.h5'
+    shutil.copyfile(pthPForg, pthPFtmp)
+    # overwrite h5 file
+    with h5py.File(pthPFtmp, 'r+') as pssetup:
         idxFCode = where(pssetup['f_codes'][:,0]['f-code'] == fcode)[0][0]
         FCode = pssetup['f_codes'][idxFCode]
         if sRefType.startswith('Ref'):
@@ -56,12 +62,10 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
     cal_file_name = instrnam + str(instrnum) + 's' + str(specnum) + '_CF_' + sCfSuffix + '.txt'
 
     processor = create_processor_adv(dirs, instrnum, specnum, locname, None, fcode, None, cal_file=cal_file_name,
-                                     proc_setup=pthPF, nuke_l2=True)
+                                     proc_setup=pthPFtmp, nuke_l2=True)
 
     dd = str(currday)
     dd = date(int(dd[:4]), int(dd[4:6]), int(dd[6:]))
     processor.process_day(dd)
 
     print("Poor man's wrapper finished")
-
-    return curr_ref
