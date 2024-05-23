@@ -36,13 +36,14 @@ Convert to CINDI3 blind comparison format -> True
 Overwrite nominal viewing zenith angles -> False
 Viewing zenith angles to overwrite -> E0:89,88,87,86,85,84,82,75,60,0; E1:89,88,87,86,85,84,82,75,60,0; E2:89,87,85,75; E3:89,87,85,75,0; E4:89,87,85,75; E5:89,87,85,75,0; E6:89,87,85,75; E7:89,87,85,75,0; E8:89,88,87,86,85,84,82,75,60,0; E9:89,88,87,86,85,84,82,75,60,0; EH:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H2:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H3:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H4:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H5:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; ZC:0; ZR:0
 Viewing azimuth angles to overwrite -> E0:287,287,287,287,287,287,287,287,287,287; E1:287,287,287,287,287,287,287,287,287,287; E2:355,355,355,355; E3:45,45,45,45,45; E4:95,95,95,95; E5:135,135,135,135,135; E6:195,195,195,195; E7:245,245,245,245,245; E8:287,287,287,287,287,287,287,287,287,287; E9:287,287,287,287,287,287,287,287,287,287; EH:287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.; ZC:0; ZR:0
-Product aliases for f codes -> NO2uv:co09
-Product reference type -> NO2uv:Ref,ExtRef,SyntOpen; NO2vis:Ref; O3ext:ExtRef; O3vis:Ref
-Product version number -> NO2uv:1; HCHO:2; O3uv:2
-Allowed processing types per reference -> Ref:PROFILE,SKY; SyntOPEN:SUN; ExtRef:SUN; ExtOPEN:SUN
-Calibration file suffixes for O4 -> ICF:_CF_v1d20160601_Finkenzeller_2022.txt,_CF_v1d20160601_ThalmanAndVolkamer_2013.txt
+Product aliases for f codes -> NO2VIS:co09,cd09; O4VIS:co09,cd09; NO2VIS-SMALL:co10,cd10; CHOCHO:co11,cd11; O3VIS:co12,cd12; NO2UV:cu15,cd15; O4UV:cu15,cd15; HCHO:cu16,cu17,cd17; HONO:cu18,cd18; O3UV:cu19,cd19; BrO:cu20,cd20; NO2EXT:co13; H2OEXT:co14; O3EXT:cu21; SO2UV:cu22
+Product reference type -> NO2VIS:Ref,SyntOPEN; O4VIS:Ref,SyntOPEN; NO2VISSMALL:Ref,SyntOPEN; CHOCHO:Ref,SyntOPEN; O3VIS:Ref,SyntOPEN; NO2UV:Ref,SyntU340; O4UV:Ref,SyntU340; HCHO:Ref,SyntU340,MeasLow; HONO:Ref,SyntU340; O3UV:Ref,SyntU340; BrO:Ref,SyntU340; NO2EXT:ExtOPEN; H2OEXT:ExtOPEN; O3EXT:ExtU340; SO2UV:SyntU340
+Product version number -> NO2VIS:1; O4VIS:1; NO2VISSMALL:1; CHOCHO:1; O3VIS:1; NO2UV:1; O4UV:1; HCHO:1; HONO:1; O3UV:1; BrO:1; NO2EXT:1; H2OEXT:1; O3EXT:1; SO2UV:1
+Allowed processing types per reference -> Ref:PROFILE,SKY; MeasLow:PROFILE,SKY; SyntRef:SUN; SyntOPEN:SUN; SyntU340:SUN; ExtRef:SUN; ExtOPEN:SUN; ExtU340:SUN
+Calibration file suffixes for O4 -> NO2VIS:Finkenzeller2022; O4VIS:Finkenzeller2022; NO2VISSMALL:Finkenzeller2022; CHOCHO:Finkenzeller2022; O3VIS:ThalmanVolkamer2013; NO2UV:Finkenzeller2022; O4UV:Finkenzeller2022; HCHO:Finkenzeller2022; HONO:Finkenzeller2022; O3UV:Finkenzeller2022; BrO:Finkenzeller2022
+
 L2Fit file number of header lines -> NO2vis:172; NO2visSmall:101; NO2uv:172; HCHO:108; O3vis:107; O3uv:98
 L1 file number of header lines -> 128s1:109; 128s2:85; 129s1:91; 129s2:85; 118s1:90; 28s1:88; 32s1:90
 L1 file start of spectra column -> 128s1:81; 128s2:59; 129s1:65; 129s2:59; 118s1:64; 28s1:62; 32s1:64
 Institution and instrument number assignment -> 128s1:LuftBlick,35; 118s2:LuftBlick,36; 129s1:LuftBlick,34; 118s1:KNMI,31
-Analyze product -> NO2vis:False; NO2visSmall:False; NO2uv:True; HCHO:False; O3vis:False; O3uv:False
+Analyze product -> NO2VIS:True; O4VIS:True; NO2VISSMALL:True; CHOCHO:True; O3VIS:True; NO2UV:True; O4UV:True; HCHO:True; HONO:True; O3UV:True; BrO:True
