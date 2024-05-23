@@ -260,14 +260,16 @@ def ProcessCompData(par):
         for iSpec in par['dPan'][sPanC]:
             #> Loop dates
             for iDateC, sDateRefC in zip(par['iDate'], par['sRefDateTime']):
-                #> Loop references
-                for sRtn in par['sRefRtn']:
-                    #> Loop processing f-codes:
-                    for sFCode in par['dProcCode']['f']:
-                        curr_ref = ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], [iDateC], 'Alexander Cede',
-                                                sFCode, par['sOFPth'], par['sCFPth'], par['sBlickRootPth'],
-                                                par['sL0Pth'], par['sL1Pth'], par['sL2Pth'], par['sL2FitPth'], par['sPFPth'], par['iDate'][0],
-                                                par['dProdRefT'], par, sRtn, par['FuFi'], iDateC, sDateRefC, par['dProcCode']['s'], par['dCfSuffix'], par['dProdFCode'])
+                #> Loop products
+                lProds = [prod for prod,do in par['dProdAna'].items() if do]
+                for sProd in lProds:
+                    #> Loop processing f-codes for each Product:
+                    for sFCode in par['dProdFCode'][sProd]:
+                        curr_ref = ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], sFCode, par['sOFPth'], par['sCFPth'],
+                                                     par['sBlickRootPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
+                                                     par['sL2FitPth'], par['sPFPth'], par['iDate'][0],
+                                                     par, par['sRefRtn'][0], iDateC, sDateRefC, par['dProcCode']['s'],
+                                                     par['dCfSuffix'])
     print('... finished processing data.')
     return curr_ref
 

@@ -9,7 +9,7 @@ from blickp_processingsetups import FittingSetup
 path = os.path.normpath("C:/Blick/src")
 os.chdir(path)
 from glob import glob
-from numpy import array, nan, where, argmax, ones
+from numpy import array, nan, where, argmax, ones, string_
 from datetime import datetime, date, timedelta
 
 from blick_psio import *
@@ -19,9 +19,9 @@ rr = blick_routinereader()
 import blick_processcore as prc
 from blickp import create_processor_adv
 
-def ProcessingWrapper(instrnam, instrnum, specnum, locname, ddAll, networkpi, fcode,
-                    pthOF, pthCF, sBlickRootPth, pthL0, pthL1, pthL2, pthL2Fit, pthPF, currday, dProdRefT,
-                    par, sRtn, sFuFiC, iDateC, sDateRefC, sSCode, dCfSuffix, dProdFCode):
+def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
+                    pthOF, pthCF, sBlickRootPth, pthL0, pthL1, pthL2, pthL2Fit, pthPF, currday,
+                    par, sRefRtn, iDateC, sDateRefC, sSCode, sCfSuffix):
 
     #Initialize empty dictionary
     dirs = {}
@@ -35,33 +35,26 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, ddAll, networkpi, fc
     dirs['data_dir_iof'] = sBlickRootPth + pthOF
     dirs['data_dir_icf'] = sBlickRootPth + pthCF
 
-    # For the O4uv product, the processor has to run for both calibration files (Finkenzeller, 2022; ThalmanAndVolkamer, 2013)
-    curr_prod = next(iter(dProdFCode))
-    # Here we would need a for loop over the full length of len(dCfSuffix['ICF']) for each individual ICF
-    if curr_prod == 'O3vis':
-        cal_file_name = 'Pandora' + str(instrnum) + 's' + str(specnum) + dCfSuffix['ICF'][0]
-        processor = create_processor_adv(dirs, instrnum, specnum, locname, None, fcode, None, cal_file=cal_file_name,
-                                         proc_setup=pthPF, nuke_l2=True)
-        # For all other products, the calibration file is selected automatically.
-    else:
-        processor = create_processor_adv(dirs, instrnum, specnum, locname, None, fcode, None, cal_file=None,
-                                         proc_setup=pthPF, nuke_l2=True)
-
-    from main_makeCompData import GetExternalReferenceFileName
-    sRefNme = GetExternalReferenceFileName(par, instrnum, specnum, sRtn, sFuFiC[str(instrnum)][specnum][sSCode[0]][sRtn][iDateC][0], iDateC,
-                                           sDateRefC, sSCode[0])
+    # For the O3VIS product, the processor has to run for both calibration files (Finkenzeller, 2022; ThalmanAndVolkamer, 2013)
+    cal_file_name = instrnam + str(instrnum) + 's' + str(specnum) + '_CF_' + sCfSuffix + '.txt'
+    processor = create_processor_adv(dirs, instrnum, specnum, locname, None, fcode, None, cal_file=cal_file_name,
+                                     proc_setup=pthPF, nuke_l2=True)
 
     reference = processor.config.processing_setups.fcodes[fcode].reference
     # Check if reference starts with REF_ and overwrite it with reference data
     if reference.startswith('REF_'):
         # Overwrite product reference type in f-code
         copy = processor.config.processing_setups.fcodes[fcode]
+
+        from main_makeCompData import GetExternalReferenceFileName
+        sRefNme = GetExternalReferenceFileName(par, instrnum, specnum, sRefRtn, copy.filter_types, iDateC, sDateRefC, sSCode[0])
+
         processor.config.processing_setups.fcodes[fcode] = FittingSetup(
             code=copy.code,
             name=copy.name,
             processing_types=copy.processing_types,
             filter_types=copy.filter_types,
-            reference=np.string_('REF_' + sRefNme), # Overwrite product reference type in f-code
+            reference=string_('REF_' + sRefNme), # Overwrite product reference type in f-code
             wlstart=copy.wlstart,
             wlend=copy.wlend,
             npoll=copy.npoll,
@@ -92,6 +85,6 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, ddAll, networkpi, fc
     processor.process_day(dd)
 
     curr_ref = str(reference)
-    print "Poor man's wrapper finished"
+    print("Poor man's wrapper finished")
 
     return curr_ref
