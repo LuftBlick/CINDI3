@@ -397,7 +397,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
         h += '* Col {}: INORM_540'.format(c - 1, c) + '\n';c += 1
         h += '* DOY UTC ACQT SZA SAA VEA VAA NO2_DSCD_298 NO2_DSCD_298_Error O4_DSCD_293 O4_DSCD_293_Error NO2_DSCD_220 NO2_DSCD_220_Error O3_DSCD_223 O3_DSCD_223_Error O3_DSCD_243 O3_DSCD_243_Error BrO_DSCD_223 BrO_DSCD_223_Error HCHO_DSCD_297 HCHO_DSCD_297_Error Ring Ring_Error RMS SPECTRUM Intens(340) CI(340/370) NO2_DSCD OFFSET NO2_DSCD NO2_DSCD_Error O3_DSCD O3_DSCD_Error INORM_280 INORM_290 INORM_300 INORM_310 INORM_320 INORM_330 INORM_340 INORM_350 INORM_360 INORM_370 INORM_380 INORM_390 INORM_400 INORM_410 INORM_420 INORM_430 INORM_440 INORM_450 INORM_460 INORM_470 INORM_480 INORM_490 INORM_500 INORM_510 INORM_520 INORM_530 INORM_540'
 
-    if par['dProdAna'][sProcGas]:
+        if par['dProdAna'][sProcGas]:
             f, ax = subplots(10, 2, figsize=(3, 8))
             idxNoon = argmin(a2DatAct[:, 3])
             fltAm = a2DatAct[:idxNoon, 5] > 85.
