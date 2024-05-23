@@ -5,6 +5,7 @@
 # IMPORT modules
 import os
 import h5py
+import gc
 import shutil
 
 # Define the desired path
@@ -20,6 +21,24 @@ from blick_routinereader import *
 rr = blick_routinereader()
 import blick_processcore as prc
 from blickp import create_processor_adv
+
+
+def close_h5_files(file_path):
+    # Iterate over all objects tracked by the garbage collector
+    for obj in gc.get_objects():
+        try:
+            # Check if the object is an h5py File instance
+            if isinstance(obj, h5py.File):
+                # In Python 2.7, the filename can be accessed via obj.file.filename
+                if obj.file.filename == file_path:
+                    obj.close()
+        except AttributeError:
+            # Handle case where obj.file or obj.file.filename does not exist
+            pass
+        except ValueError:
+            # Handle case where file ID is not valid
+            pass
+
 
 def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
                     pthOF, pthCF, sBlickRootPth, pthL0, pthL1, pthL2, pthL2Fit, pthPF, currday,
@@ -67,5 +86,8 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
     dd = str(currday)
     dd = date(int(dd[:4]), int(dd[4:6]), int(dd[6:]))
     processor.process_day(dd)
+
+    # close processing setups file
+    close_h5_files(pthPFtmp)
 
     print("Poor man's wrapper finished")
