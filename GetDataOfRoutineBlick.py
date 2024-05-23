@@ -20,7 +20,7 @@ psp.LoadCalibrationParameters(gasinfo)
 
 class GetDataOfRoutine:
 
-    def __init__(self, iPan, iSpec, sLoc, sPthRoot, sPthData, sPthOF, sPthCF, sCfSuffix, lBlickCodes, lBlickQCodes):
+    def __init__(self, iPan, iSpec, sLoc, sPthRoot, sPthData, sPthOF, sPthCF, sCfSuffix, lBlickCodes):
         self.iPan = iPan
         self.iSpec = iSpec
         self.sLoc = sLoc
@@ -30,7 +30,7 @@ class GetDataOfRoutine:
         self.sPthCF = path.join(self.sPthRoot, sPthCF)
         self.sCfSuffix = sCfSuffix
         self.lBlickCodes = lBlickCodes  # elem 0 = s number, elem 1 = f number, elem 2 = r number
-        self.lBlickQCodes = lBlickQCodes  # elem 0 = qs number, elem 1 = qf number, elem 2 = qr number
+        #self.lBlickQCodes = lBlickQCodes  # elem 0 = qs number, elem 1 = qf number, elem 2 = qr number
 
 
     def GetCalData(self, dtDate):
@@ -138,7 +138,7 @@ class GetDataOfRoutine:
         import blick_countconverter as coco
 
         #> s/qs-number index
-        qsind = qsinfo['qs-code'] == self.lBlickQCodes[0]
+        #qsind = qsinfo['qs-code'] == self.lBlickQCodes[0]
         sind = sinfo['s-code'] == self.lBlickCodes[0]
 
         lWvl = []
@@ -164,7 +164,7 @@ class GetDataOfRoutine:
                 ##> correct counts
                 # a, cal_data, gasinfo, sinfo, qsinfo, checkwlc=True, islamp=False, flux=None
                 a2Cc, a2ECc, ecc_instr, ccinfo = coco.convert_rc(lDataCmb[iDayI][iRtnI], lCalData, gasinfo, sinfo[sind],
-                                                                 qsinfo[qsind], checkwlc)
+                                                                 checkwlc)
                 ##> Stack data
                 a3Cc = dstack((a3Cc, a2Cc))
                 a3ECc = dstack((a3ECc, a2ECc))

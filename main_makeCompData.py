@@ -18,12 +18,12 @@ from blick_io import blick_io
 io = blick_io()
 
 from CINDI3Formats.CINDI3SemiBlindDirSun import \
-    CINDI3SemiBlind_NO2vis, \
-    CINDI3SemiBlind_NO2visSmall, \
+    CINDI3SemiBlind_NO2VIS, \
+    CINDI3SemiBlind_NO2VISSMALL, \
     CINDI3SemiBlind_NO2UV, \
     CINDI3SemiBlind_HCHO, \
-    CINDI3SemiBlind_O3vis, \
-    CINDI3SemiBlind_O3uv
+    CINDI3SemiBlind_O3VIS, \
+    CINDI3SemiBlind_O3UV
 
 def ConvertToCINDI3BlindFmt(par):
 
@@ -40,21 +40,22 @@ def ConvertToCINDI3BlindFmt(par):
                 for sProd in lProds:
                     # > Loop reference types:
                     for sRefType in par['dProdRefT'][sProd]:
-                        iHeadL1 = par['dL1NHead'][sPanC+'s'+str(iSpec)][0]
-                        iCcCol = par['dL1CcCol'][sPanC+'s'+str(iSpec)][0]
-                        iHeadL2Fit = par['dProdNHead'][sProd][0]
-                        sSCode = par['dSCode']['s'][0]
-                        sFCode = par['dProdFCode'][sProd][0]
-                        iProcVers = par['dProdVers'][sProd][0]
-                        sProcType = par['dProcType'][sRefType]
+                        for sCfSuffix in par['dCfSuffix'][sProd]:
+                            iHeadL1 = par['dL1NHead'][sPanC+'s'+str(iSpec)][0]
+                            iCcCol = par['dL1CcCol'][sPanC+'s'+str(iSpec)][0]
+                            iHeadL2Fit = par['dProdNHead'][sProd][0]
+                            sSCode = par['dSCode']['s'][0]
+                            sFCode = par['dProdFCode'][sProd][0]
+                            iProcVers = par['dProdVers'][sProd][0]
+                            sProcType = par['dProcType'][sRefType]
 
-                        print('    ... for Pandora {}, s{}, Prod {}({}), Date {}')\
+                            print('    ... for Pandora {}, s{}, Prod {}({}), Date {}')\
                             .format(sPanC, iSpec, sProd, sFCode, sDate)
 
-                        eval(
-                            'CINDI3SemiBlind_{}(par, sInstituteC, sDate, par["sLoc"], sInstNum, sPanNme, sProd,'
-                             'sSCode, sFCode, iProcVers, iHeadL2Fit, iHeadL1, iCcCol, sProcType, sPanC, sRefType)'.format(sProd)
-                        )
+                            eval(
+                                'CINDI3SemiBlind_{}(par, sInstituteC, sDate, par["sLoc"], sInstNum, sPanNme, sProd,'
+                                 'sSCode, sFCode, iProcVers, iHeadL2Fit, iHeadL1, iCcCol, sProcType, sPanC, sRefType, sCfSuffix)'.format(sProd)
+                            )
 
     print('... finished converting to CINDI-3 blind format.')
 
