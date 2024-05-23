@@ -265,11 +265,14 @@ def ProcessCompData(par):
                 for sProd in lProds:
                     #> Loop processing f-codes for each Product:
                     for sFCode in par['dProdFCode'][sProd]:
-                        curr_ref = ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], sFCode, par['sOFPth'], par['sCFPth'],
-                                                     par['sBlickRootPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
-                                                     par['sL2FitPth'], par['sPFPth'], par['iDate'][0],
-                                                     par, par['sRefRtn'][0], iDateC, sDateRefC, par['dProcCode']['s'],
-                                                     par['dCfSuffix'])
+                        #> Loop reference types:
+                        for sRefType in par['dProdRefT'][sProd]:
+                            for sCfSuffix in par['dCfSuffix'][sProd]:
+                                curr_ref = ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], sFCode, par['sOFPth'], par['sCFPth'],
+                                                             par['sBlickRootPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
+                                                             par['sL2FitPth'], par['sPFPth'], par['iDate'][0],
+                                                             par, par['sRefRtn'][0], iDateC, sDateRefC, par['dProcCode']['s'],
+                                                             sRefType, sCfSuffix)
     print('... finished processing data.')
     return curr_ref
 
