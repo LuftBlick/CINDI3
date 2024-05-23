@@ -1,6 +1,6 @@
 ###########################
 ## PROCESSING PARAMETERS ##
-Pandora unit(s) with spectrometers -> 128:1
+Pandora unit(s) with spectrometers -> 81:1
 Locations -> Cabauw
 Date(s) to process [UTC] -> 20160927
 Spectral fitting reference datetime [UTC] -> 20160927T113500Z
