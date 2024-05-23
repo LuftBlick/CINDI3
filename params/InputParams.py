@@ -17,9 +17,7 @@ def LoadParams(par):
         ['Maximum allowed time delay of reference time to nearest measured spectrum [min]', 'iRefOffs', 'int'],
         ['Spectral fitting reference from routine', 'sRefRtn', 'stringarray'],
         ['Spectral fitting reference from routine number of measurements for routine', 'iRtnCnt', 'int'],
-        ['Blick processing setup code(s) [s,f,r]', 'dProcCode', 'dictstring'],
-        ['Blick processing setup q-code(s) [qs,qf,qr]', 'dProcQCode', 'dictstring'],
-        ['Blick processing setup levels [s,f,r]', 'dProcLevels', 'dictbool'],
+        ['L1 processing s-code', 'dSCode', 'dictstring'],
         ['Intensity wavelength average pm [nm]', 'fWvlIntAvg', 'float'],
         # > paths
         ['Blick root directory', 'sBlickRootPth', 'string'],
@@ -44,7 +42,7 @@ def LoadParams(par):
         ['Product aliases for f codes', 'dProdFCode', 'dictstring'],
         ['Product reference type', 'dProdRefT', 'dictstring'],
         ['Product version number', 'dProdVers', 'dictint'],
-        ['Calibration file suffixes for O4', 'dCfSuffix', 'dictstring'],
+        ['Calibration file suffixes', 'dCfSuffix', 'dictstring'],
         ['L2Fit file number of header lines', 'dProdNHead', 'dictint'],
         ['L1 file number of header lines', 'dL1NHead', 'dictint'],
         ['L1 file start of spectra column', 'dL1CcCol', 'dictint'],
@@ -59,9 +57,5 @@ def LoadParams(par):
     for parC in ['iDate', 'sRefDateTime', 'sRefRtn', 'iRtnCnt']:
         if par[parC].shape == ():
             par[parC] = par[parC].reshape(1, )
-
-    for parC in par['dProcCode'].keys():
-        if par['dProcCode'][parC] == -1:
-            par['dProcCode'][parC] = []
 
     return par

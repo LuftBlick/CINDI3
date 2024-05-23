@@ -11,9 +11,7 @@ Average interval around reference datetime [min] -> 6
 Maximum allowed time delay of reference time to nearest measured spectrum [min] -> 15
 Spectral fitting reference from routine -> IZ
 Spectral fitting reference from routine number of measurements for routine -> 2
-Blick processing setup code(s) [s,f,r] -> s:mca1; f:co09; r:nvh3
-Blick processing setup q-code(s) [qs,qf,qr] -> qs:st00; qf:1; qr:-1
-Blick processing setup levels [s,f,r] -> s:True; f:True; r:False
+L1 processing s-code -> s:mca1; qs:st00
 Intensity wavelength average pm [nm] -> 1.
 ###########################
 ## PATHS ##################
@@ -40,10 +38,9 @@ Product aliases for f codes -> NO2VIS:co09,cd09; O4VIS:co09,cd09; NO2VIS-SMALL:c
 Product reference type -> NO2VIS:Ref,SyntOPEN; O4VIS:Ref,SyntOPEN; NO2VISSMALL:Ref,SyntOPEN; CHOCHO:Ref,SyntOPEN; O3VIS:Ref,SyntOPEN; NO2UV:Ref,SyntU340; O4UV:Ref,SyntU340; HCHO:Ref,SyntU340,MeasLow; HONO:Ref,SyntU340; O3UV:Ref,SyntU340; BrO:Ref,SyntU340; NO2EXT:ExtOPEN; H2OEXT:ExtOPEN; O3EXT:ExtU340; SO2UV:SyntU340
 Product version number -> NO2VIS:1; O4VIS:1; NO2VISSMALL:1; CHOCHO:1; O3VIS:1; NO2UV:1; O4UV:1; HCHO:1; HONO:1; O3UV:1; BrO:1; NO2EXT:1; H2OEXT:1; O3EXT:1; SO2UV:1
 Allowed processing types per reference -> Ref:PROFILE,SKY,ALMUCANTAR; MeasLow:PROFILE,SKY,ALMUCANTAR; SyntRef:SUN; SyntOPEN:SUN; SyntU340:SUN; ExtRef:SUN; ExtOPEN:SUN; ExtU340:SUN
-Calibration file suffixes for O4 -> NO2VIS:Finkenzeller2022; O4VIS:Finkenzeller2022; NO2VISSMALL:Finkenzeller2022; CHOCHO:Finkenzeller2022; O3VIS:ThalmanVolkamer2013; NO2UV:Finkenzeller2022; O4UV:Finkenzeller2022; HCHO:Finkenzeller2022; HONO:Finkenzeller2022; O3UV:Finkenzeller2022; BrO:Finkenzeller2022
+Calibration file suffixes -> NO2VIS:Finkenzeller2022; O4VIS:Finkenzeller2022; NO2VISSMALL:Finkenzeller2022; CHOCHO:Finkenzeller2022; O3VIS:ThalmanVolkamer2013; NO2UV:Finkenzeller2022; O4UV:Finkenzeller2022; HCHO:Finkenzeller2022; HONO:Finkenzeller2022; O3UV:Finkenzeller2022; BrO:Finkenzeller2022
 L2Fit file number of header lines -> NO2vis:172; NO2visSmall:101; NO2uv:172; HCHO:108; O3vis:107; O3uv:98
 L1 file number of header lines -> 128s1:109; 128s2:85; 129s1:91; 129s2:85; 118s1:90; 28s1:88; 32s1:90
 L1 file start of spectra column -> 128s1:81; 128s2:59; 129s1:65; 129s2:59; 118s1:64; 28s1:62; 32s1:64
 Institution and instrument number assignment -> 128s1:LuftBlick,35; 118s2:LuftBlick,36; 129s1:LuftBlick,34; 118s1:KNMI,31
 Analyze product -> NO2VIS:True; O4VIS:False; NO2VISSMALL:False; CHOCHO:False; O3VIS:False; NO2UV:False; O4UV:False; HCHO:False; HONO:False; O3UV:False; BrO:False
-# Analyze product -> NO2VIS:True; O4VIS:True; NO2VISSMALL:True; CHOCHO:True; O3VIS:True; NO2UV:True; O4UV:True; HCHO:True; HONO:True; O3UV:True; BrO:True

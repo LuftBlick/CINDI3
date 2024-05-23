@@ -25,8 +25,7 @@ from CINDI3Formats.CINDI3SemiBlindDirSun import \
     CINDI3SemiBlind_O3vis, \
     CINDI3SemiBlind_O3uv
 
-def ConvertToCINDI3BlindFmt(par, curr_ref):
-    print(curr_ref)
+def ConvertToCINDI3BlindFmt(par):
     print('Start converting to CINDI-3 blind format ...')
     for sDate in par['iDate']:
         # > Loop Pandoras
@@ -123,7 +122,7 @@ def ProcessExternalReference(par):
         for iSpec in par['dPan'][sPanC]:
             dFuFiAll[sPanC][iSpec] = {}
             #> Loop s-numbers
-            for sSCode, iQSCode in zip(par['dProcCode']['s'], par['dProcQCode']['qs']):
+            for sSCode, iQSCode in zip(par['dSCode']['s'], par['dSCode']['qs']):
                 dFuFiAll[sPanC][iSpec][sSCode] = {}
                 GD = GetDataOfRoutine(int(sPanC), iSpec, par['sLoc'], par['sBlickRootPth'], par['sL0Pth'],
                                       par['sOFPth'], par['sCFPth'], [sSCode, -1, -1], [iQSCode, -1, -1])
@@ -268,13 +267,12 @@ def ProcessCompData(par):
                         #> Loop reference types:
                         for sRefType in par['dProdRefT'][sProd]:
                             for sCfSuffix in par['dCfSuffix'][sProd]:
-                                curr_ref = ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], sFCode, par['sOFPth'], par['sCFPth'],
-                                                             par['sBlickRootPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
-                                                             par['sL2FitPth'], par['sPFPth'], par['iDate'][0],
-                                                             par, par['sRefRtn'][0], iDateC, sDateRefC, par['dProcCode']['s'],
-                                                             sRefType, sCfSuffix)
+                                ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], sFCode, par['sOFPth'], par['sCFPth'],
+                                                  par['sBlickRootPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
+                                                  par['sL2FitPth'], par['sPFPth'], par['iDate'][0],
+                                                  par, par['sRefRtn'][0], iDateC, sDateRefC, par['dSCode']['s'],
+                                                  sRefType, sCfSuffix)
     print('... finished processing data.')
-    return curr_ref
 
 # MAIN
 ########################################################################################################################
@@ -293,8 +291,8 @@ if __name__ == '__main__':
 
     #> Process data
     if par['doProcData']:
-        curr_ref = ProcessCompData(par)
+        ProcessCompData(par)
 
     #> Convert data to CINDI-3 blind comparison format
     if par['doCINDI2BlindFmt']:
-        ConvertToCINDI3BlindFmt(par, curr_ref)
+        ConvertToCINDI3BlindFmt(par)
