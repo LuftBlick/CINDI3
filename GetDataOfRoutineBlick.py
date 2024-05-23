@@ -22,7 +22,7 @@ psp.LoadCalibrationParameters(gasinfo)
 
 class GetDataOfRoutine:
 
-    def __init__(self, iPan, iSpec, sLoc, sPthRoot, sPthData, sPthOF, sPthCF, lBlickCodes, lBlickQCodes):
+    def __init__(self, iPan, iSpec, sLoc, sPthRoot, sPthData, sPthOF, sPthCF, sCfSuffix, lBlickCodes, lBlickQCodes):
         self.iPan = iPan
         self.iSpec = iSpec
         self.sLoc = sLoc
@@ -30,6 +30,7 @@ class GetDataOfRoutine:
         self.sPthData = sPthData
         self.sPthOF = path.join(self.sPthRoot, sPthOF)
         self.sPthCF = path.join(self.sPthRoot, sPthCF)
+        self.sCfSuffix = sCfSuffix
         self.lBlickCodes = lBlickCodes  # elem 0 = s number, elem 1 = f number, elem 2 = r number
         self.lBlickQCodes = lBlickQCodes  # elem 0 = qs number, elem 1 = qf number, elem 2 = qr number
 
@@ -52,18 +53,8 @@ class GetDataOfRoutine:
         # read IOF (only read if it has changed relative to the previous day!)
         res, spec_pars, hst_pars, tc_pars, cam_pars, pssys_pars, sbhs_pars, meta_data, checksum = io.get_instrparams(iofname)
 
-        # find appropriate ICF with the correct validity date
-        ##> ONLY LOW LEVEL CHECK -> JUST CHECKING VALIDITY DATE!
-        cfs = array(glob(self.sPthCF + '{}{}s{}_cf_*.txt'.format(instrnam, self.iPan, self.iSpec)))
-        vps = ones((len(cfs), 2)) * nan
-        for i, cf in enumerate(cfs):
-            prt = cf.partition('\\')[-1].partition('v')[-1].partition('.')[0]
-            vps[i, 0] = int(prt.partition('d')[0])
-            vps[i, 1] = int(prt.partition('d')[-1])
-        #> highest cf smaller than measurement time
-        vpMax = max(vps[vps[:, 1] <= int(sDate), 1])
-        cfs = cfs[where(vps[:, 1] == vpMax)]
-        icfname = cfs[argmax(vps[vps[:, 1] == vpMax, 0])]
+        # load ICF
+        icfname = os.path.join(self.sPthCF + '{}{}s{}_CF_{}.txt'.format(instrnam, self.iPan, self.iSpec, self.sCfSuffix))
         assert path.isfile(icfname), 'Calibrationfile "{}" not available!'.format(icfname)
         print('   ... CF: {}'.format(icfname))
 

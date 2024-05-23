@@ -12,6 +12,7 @@ Maximum allowed time delay of reference time to nearest measured spectrum [min] 
 Spectral fitting reference from routine -> IZ
 Spectral fitting reference from routine number of measurements for routine -> 2
 L1 processing s-code -> s:mca1; qs:st00
+Calibration file suffix for processing reference -> Finkenzeller2022
 Intensity wavelength average pm [nm] -> 1.
 ###########################
 ## PATHS ##################
@@ -19,7 +20,7 @@ Blick root directory -> C:/Blick1862/
 Operation file directory -> data/operationfiles/
 Calibration file directory -> data/calibrationfiles/
 Pslib directory -> C:/Blick1862/data/lib/pslib/
-Reference data directory -> C:/Blick1862/data/
+Reference data directory -> C:/Blick1862/data/CINDI3
 L0 data directory -> C:/Blick1862/data/L0/
 L1 data directory -> C:/Blick1862/data/L1/
 L2 data directory -> C:/Blick1862/data/L2/
@@ -28,7 +29,7 @@ Processing setup file directory -> C:/Blick1862/lib/pslib/Blick_ProcessingSetups
 ###########################
 ## CINDI-3 CAMPAIGN #######
 Campaign data directory -> C:/Blick1862/data/CINDI3/
-Calculate external reference -> False
+Calculate external reference -> True
 Process data -> True
 Convert to CINDI3 blind comparison format -> True
 Overwrite nominal viewing zenith angles -> False

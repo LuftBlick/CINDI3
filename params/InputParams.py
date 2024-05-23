@@ -18,6 +18,7 @@ def LoadParams(par):
         ['Spectral fitting reference from routine', 'sRefRtn', 'stringarray'],
         ['Spectral fitting reference from routine number of measurements for routine', 'iRtnCnt', 'int'],
         ['L1 processing s-code', 'dSCode', 'dictstring'],
+        ['Calibration file suffix for processing reference', 'CfSuffixRef', 'string'],
         ['Intensity wavelength average pm [nm]', 'fWvlIntAvg', 'float'],
         # > paths
         ['Blick root directory', 'sBlickRootPth', 'string'],
