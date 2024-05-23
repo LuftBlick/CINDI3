@@ -39,9 +39,27 @@ ylimOffs = [-0.01, 0.01]
 ylimOffsLin = [-0.01, 0.01]
 ylimRing = [-0.1, 0.1]
 
-proctype2ref = {'ONLYL1': 0, 'SUN': 2, 'MOON': 3, 'SKY': 4, 'TARGET': 5, 'PROFILE': 6, 'ALMUCANTAR': 7, 'LAMP': 8,
-                'SPECIAL': 9}
+proctype2ref = {
+    'ONLYL1': 0,
+    'SUN': 2,
+    'MOON': 3,
+    'SKY': 4,
+    'TARGET': 5,
+    'PROFILE': 6,
+    'ALMUCANTAR': 7,
+    'LAMP': 8,
+    'SPECIAL': 9
+}
 
+reftypeconf = {
+    'Ref': 'DAILYREF',
+    'SyntOPEN': 'DSREF',
+    'SyntU340': 'DSREF',
+    'ExtOPEN': 'DSREF',
+    'ExtU340': 'DSREF',
+    'MeasLow': 'SEQREF',
+    'MeasHigh': 'SEQREF',
+}
 
 def LatestFile(lPth, bIsL2Tot=False):
     lVersC = []
@@ -178,7 +196,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
 
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
-            for iRtnI in xrange(a2Dat.shape[0]):
+            for iRtnI in range(a2Dat.shape[0]):
                 idx = where((a2DatL1[:, [3, 4]] == a2Dat[iRtnI, [3, 4]]).sum(axis=1) == 2)[0]
                 if len(idx) > 0:
                     if len(idx) == 1:
@@ -195,7 +213,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
         fWvlColIdx0 = 425.
         fWvlColIdx1 = 490.
         a1ColIdx = ones((a2Cc.shape[0]))
-        for iRtnI in xrange(a2Cc.shape[0]):
+        for iRtnI in range(a2Cc.shape[0]):
             #> Relative intensity
             bWvlIdx = (a1Wvl >=  fWvlRelInt - par['fWvlIntAvg']) & (a1Wvl <=  fWvlRelInt + par['fWvlIntAvg'])
             a1RelInt[iRtnI] = mean(a2Cc[iRtnI, bWvlIdx] / a1Scl[iRtnI])
@@ -223,7 +241,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
                 a1VZA[a1VZAMode == 1] = a2Dat[(a1VZAMode == 1).squeeze(), 8 - 1] + a1VZA[a1VZAMode == 1]
                 ###> Correct Pan128s2 before 20160915, correct all angles except zenith measurement
                 if (sPan == 'Pandora128s2') and (int(sDate) <= 20160915):
-                    print 'VA correction applied'
+                    print('VA correction applied')
                     fCorVZA = -0.428
                     a1VZA[a1VZA > 5.] += fCorVZA
                 ###> Convert to nomial elevation angles
@@ -336,7 +354,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
         h += '* INSTRUMENTNUMBER: {}'.format(sPanC) + '\n'
         h += '* DATAPRODUCT: {}'.format(sProcGas) + '\n'
         h += '* PRODUCTDSCD: {}'.format(sProcGas) + '\n'
-        h += '* RefType: {}'.format(curr_ref) + '\n'
+        h += '* RefType: {}'.format(reftypeconf[curr_ref]) + '\n'
         h += '* Missing value: -999' + '\n'
         h += '* Retrieval code: BlickP (v1.8.59, May 2024)' + '\n'
         h += '* Created by: Martin Tiefengraber' + '\n'
@@ -418,7 +436,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, scT1][fltPm], 'o', label='298')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, scT2][fltPm], 'o', label='220')
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', label='fit', capsize=0)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ax[row, 0].set_ylabel(ylab)
             ylab = 'O3 DSCD'
             ylim = ylimO3
@@ -428,7 +446,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'O2O2 DSCD'
             ylim = ylimO2O2
             sc = 9
@@ -437,7 +455,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'H2O DSCD'
             ylim = ylimH2O
             sc = 15
@@ -446,7 +464,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'Ring DSCD'
             ylim = ylimRing
             sc = 17
@@ -455,16 +473,16 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'RMS'
             ylim = ylimRMS
             sc = 19
             row = 5
             ax[row, 0].semilogy(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].semilogy(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
-            # [ax[row, i].yaxis.set_scale('log') for i in xrange(ax.shape[1])]
+            # [ax[row, i].yaxis.set_scale('log') for i in range(ax.shape[1])]
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'WVL shift'
             ylim = ylimWVL0
             sc = 20
@@ -472,7 +490,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'Offset'
             ylim = ylimOffs
             sc = 23
@@ -480,7 +498,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'RI'
             ylim = ylimRI
             sc = 21
@@ -488,7 +506,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].semilogy(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].semilogy(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'CI'
             ylim = ylimCI
             sc = 22
@@ -496,13 +514,13 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
 
-            [ax[i, 0].set_xlim([100, 40]) for i in xrange(ax.shape[0])]
-            [ax[i, 1].set_xlim([40, 100]) for i in xrange(ax.shape[0])]
+            [ax[i, 0].set_xlim([100, 40]) for i in range(ax.shape[0])]
+            [ax[i, 1].set_xlim([40, 100]) for i in range(ax.shape[0])]
 
-            [ax[i, 1].get_yaxis().set_visible(False) for i in xrange(ax.shape[0])]
-            [ax[i, j].get_xaxis().set_visible(False) for i in xrange(ax.shape[0]-1) for j in xrange(ax.shape[1])]
+            [ax[i, 1].get_yaxis().set_visible(False) for i in range(ax.shape[0])]
+            [ax[i, j].get_xaxis().set_visible(False) for i in range(ax.shape[0]-1) for j in range(ax.shape[1])]
             # f.subplots_adjust(vspace=0)
 
             f.savefig(sPan + sProcGas + '_' + str(sDate) + '.png', dpi=300., bbox_inches='tight')
@@ -510,7 +528,7 @@ def CINDI3SemiBlind_NO2vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcG
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
-        sFmtDat = ['%.4e' for _ in xrange(a2DatAct.shape[1] - len(sFmtMI))]
+        sFmtDat = ['%.4e' for _ in range(a2DatAct.shape[1] - len(sFmtMI))]
         savetxt(ospath.join(par['sCampPth'], sPthCindi), a2DatAct, fmt=sFmtMI+sFmtDat, comments='', header=h)
     else:
         print '        ... file "{}" not available!'.format(sPthBlick)
@@ -568,7 +586,7 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
                 mean_intensities[wvl] = mean_value
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
-            for iRtnI in xrange(a2Dat.shape[0]):
+            for iRtnI in range(a2Dat.shape[0]):
                 idx = where((a2DatL1[:, [3, 4]] == a2Dat[iRtnI, [3, 4]]).sum(axis=1) == 2)[0]
                 if len(idx) > 0:
                     if len(idx) == 1:
@@ -585,7 +603,7 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
         fWvlColIdx0 = 411.
         fWvlColIdx1 = 445.
         a1ColIdx = ones((a2Cc.shape[0]))
-        for iRtnI in xrange(a2Cc.shape[0]):
+        for iRtnI in range(a2Cc.shape[0]):
             #> Relative intensity
             bWvlIdx = (a1Wvl >=  fWvlRelInt - par['fWvlIntAvg']) & (a1Wvl <=  fWvlRelInt + par['fWvlIntAvg'])
             a1RelInt[iRtnI] = mean(a2Cc[iRtnI, bWvlIdx] / a1Scl[iRtnI])
@@ -727,7 +745,7 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
         h += '* INSTRUMENTNUMBER: {}'.format(sPanC) + '\n'
         h += '* DATAPRODUCT: {}'.format(sProcGas) + '\n'
         h += '* PRODUCTDSCD: {}'.format(sProcGas) + '\n'
-        h += '* RefType: {}'.format(curr_ref) + '\n'
+        h += '* RefType: {}'.format(reftypeconf[curr_ref]) + '\n'
         h += '* Missing value: -999' + '\n'
         h += '* Retrieval code: BlickP (v1.8.59, May 2024)' + '\n'
         h += '* Created by: Martin Tiefengraber' + '\n'
@@ -790,13 +808,13 @@ def CINDI3SemiBlind_NO2visSmall(par, sInstituteC, sDate, sLoc, sInstNum, sPan, s
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
-        sFmtDat = ['%.4e' for _ in xrange(a2DatAct.shape[1] - len(sFmtMI))]
+        sFmtDat = ['%.4e' for _ in range(a2DatAct.shape[1] - len(sFmtMI))]
         savetxt(ospath.join(par['sCampPth'], sPthCindi), a2DatAct, fmt=sFmtMI+sFmtDat, comments='', header=h)
     else:
-        print '        ... file "{}" not available!'.format(sPthBlick)
+        print('        ... file "{}" not available!'.format(sPthBlick))
 
 
-def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas, sSCode, sFCode, sVers, nHead, nHeadL1, iCcCol, sProcType, sProdRefT, sPanC, curr_ref):
+def CINDI3SemiBlind_NO2UV(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas, sSCode, sFCode, sVers, nHead, nHeadL1, iCcCol, sProcType, sPanC, curr_ref):
     #> Get paths
     sPthCindi, sPthBlick, sPthL1Blick = GetPths(sDate, sPan, sLoc, sInstituteC, sInstNum, sProcGas, sVers, sSCode, sFCode)
     # > Read Blick data
@@ -808,15 +826,8 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
             a2Dat = loadtxt(sPthBlickGlob,
                             converters={0: lambda s: array([ord(c)**2 for c in s]).sum(), 1: datestr2num},
                             skiprows=nHead)
-            # Mask the L2Fit data by the allowed processing types for each reference
-            if curr_ref.startswith('REF_'):
-                curr_ref = curr_ref[:3].replace('E', 'e').replace('F', 'f')
-            else:
-                curr_ref = curr_ref
 
-            curr_allow_proctype = sProcType[curr_ref]
-            # proctype2ref = {'ONLYL1': 0, 'SUN': 2, 'MOON': 3, 'SKY': 4, 'TARGET': 5, 'PROFILE': 6, 'ALMUCANTAR': 7, 'LAMP': 8, 'SPECIAL': 9}
-            curr_allow_proctype_index = [proctype2ref[key] for key in curr_allow_proctype if key in proctype2ref]
+            curr_allow_proctype_index = [proctype2ref[key] for key in sProcType if key in proctype2ref]
             mask = np.isin(a2Dat[:,6], curr_allow_proctype_index)
             a2Dat = a2Dat[mask]
 
@@ -856,7 +867,7 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
                 mean_intensities[wvl] = mean_value
 
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
-            for iRtnI in xrange(a2Dat.shape[0]):
+            for iRtnI in range(a2Dat.shape[0]):
                 idx = where((a2DatL1[:, [3, 4]] == a2Dat[iRtnI, [3, 4]]).sum(axis=1) == 2)[0]
                 if len(idx) > 0:
                     if len(idx) == 1:
@@ -873,7 +884,7 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         fWvlColIdx0 = 338.
         fWvlColIdx1 = 370.
         a1ColIdx = ones((a2Cc.shape[0]))
-        for iRtnI in xrange(a2Cc.shape[0]):
+        for iRtnI in range(a2Cc.shape[0]):
             #> Relative intensity #Apply wave length shift + wavelength shift a2wvl
             bWvlIdx = (a1Wvl >=  fWvlRelInt - par['fWvlIntAvg']) & (a1Wvl <=  fWvlRelInt + par['fWvlIntAvg'])
             a1RelInt[iRtnI] = mean(a2Cc[iRtnI, bWvlIdx] / a1Scl[iRtnI])
@@ -1025,7 +1036,7 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         h += '* INSTRUMENTNUMBER: {}'.format(sPanC) + '\n'
         h += '* DATAPRODUCT: {}'.format(sProcGas) + '\n'
         h += '* PRODUCTDSCD: {}'.format(sProcGas) + '\n'
-        h += '* RefType: {}'.format(curr_ref) + '\n'
+        h += '* RefType: {}'.format(reftypeconf[reftypeconf[curr_ref]]) + '\n'
         h += '* Missing value: -999' + '\n'
         h += '* Retrieval code: BlickP (v1.8.59, May 2024)' + '\n'
         h += '* Created by: Martin Tiefengraber' + '\n'
@@ -1093,7 +1104,7 @@ def CINDI3SemiBlind_NO2uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         # Intensities from L1 File, without ratio IT 310nm +/- 0.5 nm from vector
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
-        sFmtDat = ['%.4e' for _ in xrange(a2DatAct.shape[1] - len(sFmtMI))]
+        sFmtDat = ['%.4e' for _ in range(a2DatAct.shape[1] - len(sFmtMI))]
 
         # Create an individual path for each reference in order to save CINDI ASCII File
         sCampPthfinal = ospath.join(par['sCampPth'], curr_ref)
@@ -1163,7 +1174,7 @@ def CINDI3SemiBlind_HCHO(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
                 mean_intensities[wvl] = mean_value
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
-            for iRtnI in xrange(a2Dat.shape[0]):
+            for iRtnI in range(a2Dat.shape[0]):
                 idx = where((a2DatL1[:, [3, 4]] == a2Dat[iRtnI, [3, 4]]).sum(axis=1) == 2)[0]
                 if len(idx) > 0:
                     if len(idx) == 1:
@@ -1180,7 +1191,7 @@ def CINDI3SemiBlind_HCHO(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
         fWvlColIdx0 = 336.5
         fWvlColIdx1 = 359.
         a1ColIdx = ones((a2Cc.shape[0]))
-        for iRtnI in xrange(a2Cc.shape[0]):
+        for iRtnI in range(a2Cc.shape[0]):
             #> Relative intensity
             bWvlIdx = (a1Wvl >=  fWvlRelInt - par['fWvlIntAvg']) & (a1Wvl <=  fWvlRelInt + par['fWvlIntAvg'])
             a1RelInt[iRtnI] = mean(a2Cc[iRtnI, bWvlIdx] / a1Scl[iRtnI])
@@ -1328,7 +1339,7 @@ def CINDI3SemiBlind_HCHO(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
         h += '* INSTRUMENTNUMBER: {}'.format(sPanC) + '\n'
         h += '* DATAPRODUCT: {}'.format(sProcGas) + '\n'
         h += '* PRODUCTDSCD: {}'.format(sProcGas) + '\n'
-        h += '* RefType: {}'.format(curr_ref) + '\n'
+        h += '* RefType: {}'.format(reftypeconf[curr_ref]) + '\n'
         h += '* Missing value: -999' + '\n'
         h += '* Retrieval code: BlickP (v1.8.59, May 2024)' + '\n'
         h += '* Created by: Martin Tiefengraber' + '\n'
@@ -1393,7 +1404,7 @@ def CINDI3SemiBlind_HCHO(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
-        sFmtDat = ['%.4e' for _ in xrange(a2DatAct.shape[1] - len(sFmtMI))]
+        sFmtDat = ['%.4e' for _ in range(a2DatAct.shape[1] - len(sFmtMI))]
         savetxt(ospath.join(par['sCampPth'], sPthCindi), a2DatAct, fmt=sFmtMI+sFmtDat, comments='', header=h)
     else:
         print '        ... file "{}" not available!'.format(sPthBlick)
@@ -1452,7 +1463,7 @@ def CINDI3SemiBlind_O3vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
 
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
-            for iRtnI in xrange(a2Dat.shape[0]):
+            for iRtnI in range(a2Dat.shape[0]):
                 idx = where((a2DatL1[:, [3, 4]] == a2Dat[iRtnI, [3, 4]]).sum(axis=1) == 2)[0]
                 if len(idx) > 0:
                     if len(idx) == 1:
@@ -1469,7 +1480,7 @@ def CINDI3SemiBlind_O3vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         fWvlColIdx0 = 450.
         fWvlColIdx1 = 540.
         a1ColIdx = ones((a2Cc.shape[0]))
-        for iRtnI in xrange(a2Cc.shape[0]):
+        for iRtnI in range(a2Cc.shape[0]):
             #> Relative intensity
             bWvlIdx = (a1Wvl >=  fWvlRelInt - par['fWvlIntAvg']) & (a1Wvl <=  fWvlRelInt + par['fWvlIntAvg'])
             a1RelInt[iRtnI] = mean(a2Cc[iRtnI, bWvlIdx] / a1Scl[iRtnI])
@@ -1648,7 +1659,7 @@ def CINDI3SemiBlind_O3vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
         h += '* INSTRUMENTNUMBER: {}'.format(sPanC) + '\n'
         h += '* DATAPRODUCT: {}'.format(sProcGas) + '\n'
         h += '* PRODUCTDSCD: {}'.format(sProcGas) + '\n'
-        h += '* RefType: {}'.format(curr_ref) + '\n'
+        h += '* RefType: {}'.format(reftypeconf[curr_ref]) + '\n'
         h += '* Missing value: -999' + '\n'
         h += '* Retrieval code: BlickP (v1.8.59, May 2024)' + '\n'
         h += '* Created by: Martin Tiefengraber' + '\n'
@@ -1713,7 +1724,7 @@ def CINDI3SemiBlind_O3vis(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGa
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
-        sFmtDat = ['%.4e' for _ in xrange(a2DatAct.shape[1] - len(sFmtMI))]
+        sFmtDat = ['%.4e' for _ in range(a2DatAct.shape[1] - len(sFmtMI))]
         savetxt(ospath.join(par['sCampPth'], sPthCindi), a2DatAct, fmt=sFmtMI+sFmtDat, comments='', header=h)
     else:
         print '        ... file "{}" not available!'.format(sPthBlick)
@@ -1772,7 +1783,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
 
             bIdG = zeros((a2DatL1.shape[0]), dtype=bool)
             #> Reduce to L2Fit data
-            for iRtnI in xrange(a2Dat.shape[0]):
+            for iRtnI in range(a2Dat.shape[0]):
                 idx = where((a2DatL1[:, [3, 4]] == a2Dat[iRtnI, [3, 4]]).sum(axis=1) == 2)[0]
                 if len(idx) > 0:
                     if len(idx) == 1:
@@ -1789,7 +1800,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
         fWvlColIdx0 = 320.
         fWvlColIdx1 = 340.
         a1ColIdx = ones((a2Cc.shape[0]))
-        for iRtnI in xrange(a2Cc.shape[0]):
+        for iRtnI in range(a2Cc.shape[0]):
             #> Relative intensity
             bWvlIdx = (a1Wvl >=  fWvlRelInt - par['fWvlIntAvg']) & (a1Wvl <=  fWvlRelInt + par['fWvlIntAvg'])
             a1RelInt[iRtnI] = mean(a2Cc[iRtnI, bWvlIdx] / a1Scl[iRtnI])
@@ -1931,7 +1942,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
         h += '* INSTRUMENTNUMBER: {}'.format(sPanC) + '\n'
         h += '* DATAPRODUCT: {}'.format(sProcGas) + '\n'
         h += '* PRODUCTDSCD: {}'.format(sProcGas) + '\n'
-        h += '* RefType: {}'.format(curr_ref) + '\n'
+        h += '* RefType: {}'.format(reftypeconf[curr_ref]) + '\n'
         h += '* Missing value: -999' + '\n'
         h += '* Retrieval code: BlickP (v1.8.59, May 2024)' + '\n'
         h += '* Created by: Martin Tiefengraber' + '\n'
@@ -2011,7 +2022,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, scT1][fltPm], 'o', label='298')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, scT2][fltPm], 'o', label='220')
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', label='fit', capsize=0)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ax[row, 0].set_ylabel(ylab)
             ylab = 'NO2 DSCD'
             ylim = ylimNO2
@@ -2021,7 +2032,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'HCHO DSCD'
             ylim = ylimHCHO
             sc = 13
@@ -2030,7 +2041,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'Ring DSCD'
             ylim = ylimRing
             sc = 15
@@ -2039,16 +2050,16 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].errorbar(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], yerr=a2DatAct[:idxNoon, usc][fltAm], fmt='o', capsize=0)
             ax[row, 1].errorbar(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], yerr=a2DatAct[idxNoon:, usc][fltPm], fmt='o', capsize=0)
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'RMS'
             ylim = ylimRMS
             sc = 17
             row = 5
             ax[row, 0].semilogy(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].semilogy(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
-            # [ax[row, i].yaxis.set_scale('log') for i in xrange(ax.shape[1])]
+            # [ax[row, i].yaxis.set_scale('log') for i in range(ax.shape[1])]
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'WVL shift'
             ylim = ylimWVL0
             sc = 18
@@ -2056,7 +2067,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'Offset'
             ylim = ylimOffs
             sc = 21
@@ -2064,7 +2075,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'Offset lin'
             ylim = ylimOffsLin
             sc = 22
@@ -2072,7 +2083,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'RI'
             ylim = ylimRI
             sc = 19
@@ -2080,7 +2091,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].semilogy(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].semilogy(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
             ylab = 'CI'
             ylim = ylimCI
             sc = 20
@@ -2088,13 +2099,13 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
             ax[row, 0].plot(a2DatAct[:idxNoon, 3][fltAm], a2DatAct[:idxNoon, sc][fltAm], 'o')
             ax[row, 1].plot(a2DatAct[idxNoon:, 3][fltPm], a2DatAct[idxNoon:, sc][fltPm], 'o')
             ax[row, 0].set_ylabel(ylab)
-            [ax[row, i].set_ylim(ylim) for i in xrange(ax.shape[1])]
+            [ax[row, i].set_ylim(ylim) for i in range(ax.shape[1])]
 
-            [ax[i, 0].set_xlim([100, 40]) for i in xrange(ax.shape[0])]
-            [ax[i, 1].set_xlim([40, 100]) for i in xrange(ax.shape[0])]
+            [ax[i, 0].set_xlim([100, 40]) for i in range(ax.shape[0])]
+            [ax[i, 1].set_xlim([40, 100]) for i in range(ax.shape[0])]
 
-            [ax[i, 1].get_yaxis().set_visible(False) for i in xrange(ax.shape[0])]
-            [ax[i, j].get_xaxis().set_visible(False) for i in xrange(ax.shape[0]-1) for j in xrange(ax.shape[1])]
+            [ax[i, 1].get_yaxis().set_visible(False) for i in range(ax.shape[0])]
+            [ax[i, j].get_xaxis().set_visible(False) for i in range(ax.shape[0]-1) for j in range(ax.shape[1])]
             # f.subplots_adjust(vspace=0)
 
             f.savefig(sPan + sProcGas + '_' + str(sDate) + '.png', dpi=300., bbox_inches='tight')
@@ -2102,7 +2113,7 @@ def CINDI3SemiBlind_O3uv(par, sInstituteC, sDate, sLoc, sInstNum, sPan, sProcGas
 
         #> save file
         sFmtMI = ['%.5f', '%.5f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'] # meta info
-        sFmtDat = ['%.4e' for _ in xrange(a2DatAct.shape[1] - len(sFmtMI))]
+        sFmtDat = ['%.4e' for _ in range(a2DatAct.shape[1] - len(sFmtMI))]
         savetxt(ospath.join(par['sCampPth'], sPthCindi), a2DatAct, fmt=sFmtMI+sFmtDat, comments='', header=h)
     else:
         print '        ... file "{}" not available!'.format(sPthBlick)
