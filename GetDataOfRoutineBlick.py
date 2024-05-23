@@ -6,9 +6,7 @@ import os
 path = os.path.normpath("C:/Blick/src")
 os.chdir(path)
 sys.path.insert(0, path)
-from numpy import arange, polyval, ones, dstack, \
-    isnan, where, nan, array, split, argmin, argmax
-from glob import glob
+from numpy import dstack
 from blick_psio import *
 psio = blick_psio()
 
