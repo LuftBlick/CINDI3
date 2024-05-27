@@ -19,7 +19,7 @@ def GetLineEntry(filename, signal, delim, meth):
             noline = True
     # stop if no accordance was found
     if noline:
-        print 'No entry "' + signal + '" in ' + filename + '!'
+        print('No entry "' + signal + '" in ' + filename + '!')
         sysexit(0)
     fleParams.close()
     # read wanted line
@@ -47,7 +47,7 @@ def GetLineEntry(filename, signal, delim, meth):
             elif p[1].split(',')[0] == 'False':
                 out[p[0].strip()] = asarray([False])
             else:
-                print 'unknown format in bool dict'
+                print('unknown format in bool dict')
     elif meth == 'dictstring':
         out = {}
         for i in entry:

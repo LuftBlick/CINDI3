@@ -5,7 +5,7 @@ import os
 path = os.path.normpath("C:/Blick/src/")
 os.chdir(path)
 from os import path as ospath
-from numpy import array, argmin, hstack, loadtxt, savetxt, where, ones, polyval, unique, asarray, in1d, nan, isnan, \
+from numpy import array, argmin, hstack, savetxt, where, ones, polyval, unique, asarray, in1d, nan, isnan, \
     nanmean, sum, nansum
 from datetime import datetime, timedelta
 from matplotlib.dates import num2date, date2num
@@ -13,52 +13,106 @@ from params.InputParams import LoadParams
 from GetDataOfRoutineBlick import GetDataOfRoutine
 from ProcessingWrapper import ProcessingWrapper
 from blick_countconverter import regrid_f
+from glob import glob
+import h5py
 
 from blick_io import blick_io
 io = blick_io()
 
-from CINDI3Formats.CINDI3SemiBlindDirSun import \
-    CINDI3SemiBlind_NO2VIS, \
-    CINDI3SemiBlind_NO2VISSMALL, \
-    CINDI3SemiBlind_NO2UV, \
-    CINDI3SemiBlind_HCHO, \
-    CINDI3SemiBlind_O3VIS, \
-    CINDI3SemiBlind_O3UV
+from LoadData import LoadData
+
+
+from CINDI3SemiBlind import GetPths
+from CINDI3SemiBlind import CINDI3SemiBlind
+import CINDI3SemiBlind as CSB
 
 def ConvertToCINDI3BlindFmt(par):
 
     print('Start converting to CINDI-3 blind format ...')
+    dImp = {}
+    dImp['loc'] = par['sLoc']
+    dImp['sCode'] = par['dSCode']['s'][0]
     for sDate in par['iDate']:
+        dImp['date'] = sDate
         # > Loop Pandoras
         for sPanC in par['dPan']:
             # > Loop spectrometers
             for iSpec in par['dPan'][sPanC]:
-                sPanNme = 'Pandora{}s{}'.format(sPanC, iSpec)
-                sInstituteC, sInstNum = par['dPanIdInst'][sPanNme[7:]]
+                dImp['panName'] = 'Pandora{}s{}'.format(sPanC, iSpec)
+                dImp['institute'], dImp['instNumber'] = par['dPanIdInst'][dImp['panName'][7:]]
+                dImp['headL1'] = par['dL1NHead'][sPanC + 's' + str(iSpec)][0]
+                dImp['specColL1'] = par['dL1CcCol'][sPanC + 's' + str(iSpec)][0]
+                # get L1 file psath
+                _, _, sPthL1 = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
+                                                       dImp['instNumber'], '', '',
+                                                       dImp['sCode'], '')
+                # get version
+                sPthL1 = glob(os.path.join(par['sL1Pth'], sPthL1))[-1]
+                sVers = sPthL1.split(dImp['sCode'])[-1].split('p')[0][1:]
+                # load l1 data
+                l1 = LoadData(par['sL1Pth'], [dImp['date']], dImp['loc'], dImp['panName'].partition('Pandora')[-1],
+                              'L1', sVers, [dImp['sCode']], CSB.colAssignL1, doXArray=True)[dImp['sCode']]
                 #> Loop products
                 lProds = [prod for prod,do in par['dProdAna'].items() if do]
                 for sProd in lProds:
+                    dImp['prod'] = sProd
+                    dImp['fCode'] = par['dProdFCode'][sProd][0]
+                    # load f-code details
+                    dImp['fitPars'] = {}
+                    with h5py.File(par['sPFPth'], 'r+') as pssetup:
+                        idxFCode = where(pssetup['f_codes'][:, 0]['f-code'] == dImp['fCode'])[0][0]
+                        FCode = pssetup['f_codes'][idxFCode]
+                        for fitPar in ['npol', 'noffs', 'nwlc', 'nresc', 'WL-starts', 'WL-ends', 'Ring']:
+                            dImp['fitPars'][fitPar] = FCode[fitPar][0]
+                        for fitPar in ['Fitted gases', 'Gas sources', 'Gas temps']:
+                            dImp['fitPars'][fitPar] = asarray(FCode[fitPar][0].split(','))
+                    dImp['prodVers'] = par['dProdVers'][sProd][0]
+                    # select columns to be read from L2Fit file
+                    colAssignUsed = {key:CSB.colAssignL2Fit[key] for key in par['dCompCols'][sProd]}
+                    ## add temperature
+                    for gas in dImp['fitPars']['Fitted gases']:
+                        if gas == 'O2O2':
+                            gas = 'O4'
+                        gasT = '{}_T'.format(gas)
+                        colAssignUsed[gasT] = CSB.colAssignL2Fit[gasT]
+                    ## add auxilariy information
+                    colAssignUsed['RTN'] = 'Two letter code of measurement routine'
+                    colAssignUsed['RTNC'] = 'Routine count'
+                    colAssignUsed['REPC'] = 'Repetition count'
+                    colAssignUsed['ZPM'] = 'Zenith pointing mode'
+                    colAssignUsed['APM'] = 'Azimuth pointing mode'
+                    colAssignUsed['SZA'] = 'Solar zenith angle for center-time of measurement in degree'
+                    colAssignUsed['SAA'] = 'Solar azimuth for center-time of measurement in degree'
                     # > Loop reference types:
                     for sRefType in par['dProdRefT'][sProd]:
-                        for sCfSuffix in par['dCfSuffix'][sProd]:
-                            iHeadL1 = par['dL1NHead'][sPanC+'s'+str(iSpec)][0]
-                            iCcCol = par['dL1CcCol'][sPanC+'s'+str(iSpec)][0]
-                            iHeadL2Fit = par['dProdNHead'][sProd][0]
-                            sSCode = par['dSCode']['s'][0]
-                            sFCode = par['dProdFCode'][sProd][0]
-                            iProcVers = par['dProdVers'][sProd][0]
-                            sProcType = par['dProcType'][sRefType]
+                        dImp['refType'] = sRefType
+                        dImp['procType'] = par['dProcType'][sRefType]
+                        # load L2Fit data
+                        l2fit = LoadData(os.path.join(par['sL2FitPth'], sRefType), [dImp['date']], dImp['loc'],
+                                         dImp['panName'].partition('Pandora')[-1], 'L2Fit', sVers,
+                                         [dImp['fCode']], colAssignUsed, doXArray=True)[dImp['fCode']]
+                        if l2fit.time.size:
+                            # get name of Cindi format file
+                            sPthCindi, _, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
+                                                      dImp['instNumber'], dImp['prod'], dImp['prodVers'], dImp['sCode'], dImp['fCode'])
+                            # create CINDI-3 file
+                            cindi = CINDI3SemiBlind(par['dCompCols'][sProd], par['fWvlINORM'], l1, l2fit, dImp,
+                                                    sPthCindi, CSB.colAssignCindi3, par['dOvrwVZA'], par['dOvrwVAA'])
+                            # get converted data columns and respective column description for the header
+                            allCols, descrCols = cindi.buildupColumns()
+                            # get header retrieval settings
+                            headRetrSet = cindi.headerRetrSet()
+                            # get header for general information
+                            headGeneral = cindi.headerGeneral(CSB.prodMainProd, CSB.refTypeSyn)
+                            #build full header
+                            allHeader = ''.join([line + '\n' for line in headGeneral + headRetrSet + descrCols])
 
-                            print('    ... for Pandora {}, s{}, Prod {}({}), Date {}')\
-                            .format(sPanC, iSpec, sProd, sFCode, sDate)
-
-                            eval(
-                                'CINDI3SemiBlind_{}(par, sInstituteC, sDate, par["sLoc"], sInstNum, sPanNme, sProd,'
-                                 'sSCode, sFCode, iProcVers, iHeadL2Fit, iHeadL1, iCcCol, sProcType, sPanC, sRefType, sCfSuffix)'.format(sProd)
-                            )
+                            # save file
+                            savetxt(os.path.join(par['sCampPth'], sPthCindi), allCols, fmt='%.7e',
+                                    comments='% ', delimiter=' ', header=allHeader[:-2])
+                            print('    ... for Pandora {}, s{}, Prod {}({}), Date {}'.format(sPanC, iSpec, sProd, dImp['fCode'], sDate))
 
     print('... finished converting to CINDI-3 blind format.')
-
 
 def GetExternalReferenceFileName(par, sPanC, iSpec, sRtn, sFuFi, iDate, sDateRef, iSCode):
 
@@ -74,17 +128,17 @@ def PickDataWithTimeRange(par, lVal, lValCmb):
     lValRef = []
     lValRefCmb = []
     lDtUsed = []
-    for iDate in xrange(len(lVal)):
+    for iDate in range(len(lVal)):
         lValRefDate = []
         lValRefCmbDate = []
         #> Generate date time vector
         ##> Datetime and remove time zone
         a1Dt = array([num2date((lVal[iDate][i][0][1][0] + date2num(par['epoch'])*24.*3600.)/(24.*3600.)).replace(tzinfo=None)
-                      for i in xrange(len(lVal[iDate]))])
+                      for i in range(len(lVal[iDate]))])
         #> Get datetime range
         ##> Reference date
         a1DtRef = array([datetime.strptime(par['sRefDateTime'][i], '%Y%m%dT%H%M%SZ')
-                         for i in xrange(len(par['sRefDateTime']))])
+                         for i in range(len(par['sRefDateTime']))])
         if a1DtRef.shape[0] == 1:  # use the same reference for all days
             iDate = 0
         #>  Get averaging interval
@@ -129,13 +183,13 @@ def ProcessExternalReference(par):
                                       par['sOFPth'], par['sCFPth'], par['CfSuffixRef'], [sSCode, -1, -1], [iQSCode, -1, -1])
                 #> Reformat date vector
                 a1Date = array([datetime.strptime(str(par['iDate'][i]), '%Y%m%d')
-                                for i in xrange(len(par['iDate']))])
+                                for i in range(len(par['iDate']))])
                 for sRtn, iRtnCnt in zip(par['sRefRtn'], par['iRtnCnt']):
                     dFuFiAll[sPanC][iSpec][sSCode][sRtn] = {}
                     lDataCmb, lData, _ = GD.GetDataOfRoutine(sRtn, a1Date, iLev='0')
                     #> Delete empty dates (empty when routine not has not been measured)
                     lGoodDates = []
-                    for iDateI in xrange(len(lData)):
+                    for iDateI in range(len(lData)):
                         if len(lData[iDateI]) > 0:
                             lGoodDates.append(iDateI)
                         else:
@@ -151,14 +205,14 @@ def ProcessExternalReference(par):
                         #> Loop routines
                         lWvl, lCc, lECc, lCcInfo = GD.DoDataCorrectionOneDate(2048, iRtnCnt, lDataCmb, lData, a1Date)
                         #> Average data
-                        for iDateI in xrange(len(a1Date)):
+                        for iDateI in range(len(a1Date)):
                             #> Load calibration file data
                             calData, _, _, panPars = GD.GetCalData(a1Date[iDateI])
                             # bPixReg = calData[-1][3][0]
                             #> Get functional fiter positions used in measurements
                             lFuFi = []
-                            for iRtnI in xrange(len(lDataCmb[iDateI])):
-                                for iMeasI in xrange(len(lDataCmb[iDateI][iRtnI][2])):
+                            for iRtnI in range(len(lDataCmb[iDateI])):
+                                for iMeasI in range(len(lDataCmb[iDateI][iRtnI][2])):
                                     lFuFi.append(lDataCmb[iDateI][iRtnI][2][iMeasI][3])
                             a1FuFiMea = unique(array(lFuFi))
                             ##> Find name of functional filters used in measurements
@@ -186,12 +240,12 @@ def ProcessExternalReference(par):
                                 dCc[sFuFi] = ones(dWvlCor[sFuFi].shape) * nan
                                 dECc[sFuFi] = ones(dWvlCor[sFuFi].shape) * nan
                             #> Loop all routines and measurements within routines
-                            for iRtnI in xrange(lCc[iDateI].shape[2]):
+                            for iRtnI in range(lCc[iDateI].shape[2]):
                                 dFuFiCnt = {}
                                 for sFuFi in a1FuFiNme:
                                     dFuFiCnt[sFuFi] = -1
                                 lToDel = []
-                                for iMeasI in xrange(lCc[iDateI].shape[0]):
+                                for iMeasI in range(lCc[iDateI].shape[0]):
                                     #> Only use measuremnts with more than 1 cycle and no saturated data
                                     if (lData[iDateI][iRtnI][iMeasI][4][0] > 1) and (lData[iDateI][iRtnI][iMeasI][4][2] >= 0):
                                         #> Indentify functional filter
@@ -217,17 +271,17 @@ def ProcessExternalReference(par):
                                     .format(sPanC, iSpec, sRtn, par['iDate'][iDateI], sFuFi)
 
                                 #> Make reference median wavelength vector and spectrum
-                                print(nanmean(dECc[sFuFi][:, :, 0], axis=(0, 1)))
+                                # print(nanmean(dECc[sFuFi][:, :, 0], axis=(0, 1)))
                                 ##> Intensity variation filter
                                 meanDev = (nanmean(dCc[sFuFi][:, :, 0], axis=0) - nanmean(dCc[sFuFi][:, :, 0], axis=(0, 1))) / \
                                           nanmean(dCc[sFuFi][:, :, 0], axis=0)
-                                bUsed = abs(100. * meanDev) < 15.  # in percent
+                                bUsed = abs(100. * meanDev) < par['varFilt']  # in percent
                                 a1WvlMean = nanmean(dWvlCor[sFuFi][:, bUsed, :], axis=(1, 2))
                                 a1CcMean = nanmean(dCc[sFuFi][:, bUsed, :], axis=(1, 2))
                                 a1ECcMean = nansum(dECc[sFuFi][:, bUsed, :]**2, axis=(1, 2))**0.5 / sum(bUsed)
                                 # a1ECcMean = nanmean(dECc[sFuFi][:, bUsed, :], axis=(1, 2))
-                                for iRtnI in xrange(dWvlCor[sFuFi].shape[1]):
-                                    for iMeasI in xrange(dWvlCor[sFuFi].shape[2]):
+                                for iRtnI in range(dWvlCor[sFuFi].shape[1]):
+                                    for iMeasI in range(dWvlCor[sFuFi].shape[2]):
                                         #> Regrid data to reference median
                                         if not any(isnan(dCc[sFuFi][:, iRtnI, iMeasI])):
                                             dCc[sFuFi][:, iRtnI, iMeasI] = regrid_f(dWvlCor[sFuFi][:, iRtnI, iMeasI],

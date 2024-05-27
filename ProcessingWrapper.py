@@ -1,12 +1,8 @@
-# BlickP poor man's wrapper
-# Alexander Cede, adapted by Martin Tiefengraber
-# This "poor man's" wrapper does not do any error handling!
-
-# IMPORT modules
 import os
 import h5py
 import gc
 import shutil
+from copy import copy
 
 # Define the desired path
 path = os.path.normpath("C:/Blick/src")
@@ -89,5 +85,3 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
 
     # close processing setups file
     close_h5_files(pthPFtmp)
-
-    print("Poor man's wrapper finished")

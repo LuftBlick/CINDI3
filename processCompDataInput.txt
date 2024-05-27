@@ -2,13 +2,14 @@
 ## PROCESSING PARAMETERS ##
 Pandora unit(s) with spectrometers -> 118:1
 Locations -> Cabauw
-Date(s) to process [UTC] -> 20240515
-Spectral fitting reference datetime [UTC] -> 20240515T113500Z
+Date(s) to process [UTC] -> 20240524
+Spectral fitting reference datetime [UTC] -> 20240524T114230Z
 #       if only time is given, for each day the reference is produced. When datetime is given, this us used for all dates.
 #       if the same number of times
-Average interval around reference datetime [min] -> 6
+Average interval around reference datetime [min] -> 8
 #       if = 0, only the reference datetime is considered (one measurement, no average)
 Maximum allowed time delay of reference time to nearest measured spectrum [min] -> 15
+Intensity variation filter in percent -> 50.
 Spectral fitting reference from routine -> IZ
 Spectral fitting reference from routine number of measurements for routine -> 2
 L1 processing s-code -> s:mca1; qs:st00
@@ -20,7 +21,8 @@ Blick root directory -> C:/Blick1862/
 Operation file directory -> data/operationfiles/
 Calibration file directory -> data/calibrationfiles/
 Pslib directory -> C:/Blick1862/data/lib/pslib/
-Reference data directory -> C:/Blick1862/data/CINDI3
+Reference data directory -> C:/Blick1862/data/
+#Reference data directory -> C:/Blick1862/data/CINDI3/DailyRefs
 L0 data directory -> C:/Blick1862/data/L0/
 L1 data directory -> C:/Blick1862/data/L1/
 L2 data directory -> C:/Blick1862/data/L2/
@@ -29,12 +31,12 @@ Processing setup file directory -> C:/Blick1862/lib/pslib/Blick_ProcessingSetups
 ###########################
 ## CINDI-3 CAMPAIGN #######
 Campaign data directory -> C:/Blick1862/data/CINDI3/
-Calculate external reference -> True
-Process data -> True
+Calculate external reference -> False
+Process data -> False
 Convert to CINDI3 blind comparison format -> True
-Overwrite nominal viewing zenith angles -> False
-Viewing zenith angles to overwrite -> E0:89,88,87,86,85,84,82,75,60,0; E1:89,88,87,86,85,84,82,75,60,0; E2:89,87,85,75; E3:89,87,85,75,0; E4:89,87,85,75; E5:89,87,85,75,0; E6:89,87,85,75; E7:89,87,85,75,0; E8:89,88,87,86,85,84,82,75,60,0; E9:89,88,87,86,85,84,82,75,60,0; EH:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H2:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H3:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H4:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; H5:95.,94.,93.,92.,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.,86.,85.; ZC:0; ZR:0
-Viewing azimuth angles to overwrite -> E0:287,287,287,287,287,287,287,287,287,287; E1:287,287,287,287,287,287,287,287,287,287; E2:355,355,355,355; E3:45,45,45,45,45; E4:95,95,95,95; E5:135,135,135,135,135; E6:195,195,195,195; E7:245,245,245,245,245; E8:287,287,287,287,287,287,287,287,287,287; E9:287,287,287,287,287,287,287,287,287,287; EH:287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.,287.; ZC:0; ZR:0
+Overwrite nominal viewing zenith angles -> True
+Viewing zenith angles to overwrite -> IZ:0; IW:0; IH:95.0,94.0,93.0,92.0,91.8,91.6,91.4,91.2,91.0,90.8,90.6,90.4,90.2,90.0,89.8,89.6,89.4,89.2,89.0,88.8,88.6,88.4,88.2,88.0,87.0,86.0,85.0; HI:85.0,86.0,87.0,88.0,88.2,88.4,88.6,88.8,89.0,89.2,89.4,89.6,89.8,90.0,90.2,90.4,90.6,90.8,91.0,91.2,91.4,91.6,91.8,92.0,93.0,94.0,95.0; IE:92,89,88,87,86,84,82,75,60,0; IA:88,88,88,88,88,88,88
+Viewing azimuth angles to overwrite -> IZ:278; IW:278; IH:278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278; HI:278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278,278; IE:287,287,287,287,287,287,287,287,287,287; IA:45,95,135,195,245,287,355
 Product aliases for f codes -> NO2VIS:co09,cd09; O4VIS:co09,cd09; NO2VIS-SMALL:co10,cd10; CHOCHO:co11,cd11; O3VIS:co12,cd12; NO2UV:cu15,cd15; O4UV:cu15,cd15; HCHO:cu16,cu17,cd17; HONO:cu18,cd18; O3UV:cu19,cd19; BrO:cu20,cd20; NO2EXT:co13; H2OEXT:co14; O3EXT:cu21; SO2UV:cu22
 Product reference type -> NO2VIS:Ref,SyntOPEN; O4VIS:Ref,SyntOPEN; NO2VISSMALL:Ref,SyntOPEN; CHOCHO:Ref,SyntOPEN; O3VIS:Ref,SyntOPEN; NO2UV:Ref,SyntU340; O4UV:Ref,SyntU340; HCHO:Ref,SyntU340,MeasLow; HONO:Ref,SyntU340; O3UV:Ref,SyntU340; BrO:Ref,SyntU340; NO2EXT:ExtOPEN; H2OEXT:ExtOPEN; O3EXT:ExtU340; SO2UV:SyntU340
 Product version number -> NO2VIS:1; O4VIS:1; NO2VISSMALL:1; CHOCHO:1; O3VIS:1; NO2UV:1; O4UV:1; HCHO:1; HONO:1; O3UV:1; BrO:1; NO2EXT:1; H2OEXT:1; O3EXT:1; SO2UV:1
@@ -45,3 +47,6 @@ L1 file number of header lines -> 128s1:109; 128s2:85; 129s1:91; 129s2:85; 118s1
 L1 file start of spectra column -> 128s1:81; 128s2:59; 129s1:65; 129s2:59; 118s1:64; 28s1:62; 32s1:64
 Institution and instrument number assignment -> 128s1:LuftBlick,35; 118s2:LuftBlick,36; 129s1:LuftBlick,34; 118s1:KNMI,31
 Analyze product -> NO2VIS:True; O4VIS:False; NO2VISSMALL:False; CHOCHO:False; O3VIS:False; NO2UV:False; O4UV:False; HCHO:False; HONO:False; O3UV:False; BrO:False
+
+Columns in comparison data -> NO2VIS:DOY,UTC,ACQT,SZA,SAA,VEA,VAA,NO2_DSCD_294,NO2_DSCD_294_Error,NO2_DSCD_220,NO2_DSCD_220_Error,O4_DSCD_293,O4_DSCD_293_Error,O4_DSCD_223,O4_DSCD_223_Error,O3_DSCD_223,O3_DSCD_223_Error,RMS,SHIFT,OFFSET
+Wavelengths for INORM -> 280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530

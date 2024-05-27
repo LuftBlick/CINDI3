@@ -15,6 +15,7 @@ def LoadParams(par):
         ['Spectral fitting reference datetime [UTC]', 'sRefDateTime', 'stringarray'],
         ['Average interval around reference datetime [min]', 'iRefAvgInt', 'int'],
         ['Maximum allowed time delay of reference time to nearest measured spectrum [min]', 'iRefOffs', 'int'],
+        ['Intensity variation filter in percent', 'varFilt', 'float'],
         ['Spectral fitting reference from routine', 'sRefRtn', 'stringarray'],
         ['Spectral fitting reference from routine number of measurements for routine', 'iRtnCnt', 'int'],
         ['L1 processing s-code', 'dSCode', 'dictstring'],
@@ -49,6 +50,8 @@ def LoadParams(par):
         ['L1 file start of spectra column', 'dL1CcCol', 'dictint'],
         ['Institution and instrument number assignment', 'dPanIdInst', 'dictstring'],
         ['Analyze product', 'dProdAna', 'dictbool'],
+        ['Columns in comparison data', 'dCompCols', 'dictstring'],
+        ['Wavelengths for INORM', 'fWvlINORM', 'float'],
     ])
     #> read processing parameters
     for parC in params:
