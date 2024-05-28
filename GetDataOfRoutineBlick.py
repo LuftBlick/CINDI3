@@ -151,8 +151,8 @@ class GetDataOfRoutine:
             iNumPixReg = lCalData[-1][3][0].sum()
             if iNumPixReg != iNumPix:
                 iNumPix = iNumPixReg
-            a3Cc = ones((iRoutCnt, iNumPix, 0))
-            a3ECc = ones((iRoutCnt, iNumPix, 0))
+            a3Cc = ones((iRoutCnt, iNumPix, 0)) * -999
+            a3ECc = ones((iRoutCnt, iNumPix, 0)) * -999
             lCcInfoDay = []
             #> Loop individual measurement within date
             l1colfilt, sinfoc, snumnotes = psio.get_lev1col(lCalData, spec_pars, hst_pars, tc_pars, cam_pars, pssys_pars, sbhs_pars, sinfo[sind])
@@ -165,6 +165,9 @@ class GetDataOfRoutine:
                 # a, cal_data, gasinfo, sinfo, qsinfo, checkwlc=True, islamp=False, flux=None
                 a2Cc, a2ECc, ecc_instr, ccinfo = coco.convert_rc(lDataCmb[iDayI][iRtnI], lCalData, gasinfo, sinfo[sind],
                                                                  qsinfo[qsind], checkwlc)
+                if a2Cc.shape[0] < iRoutCnt:  # only one, instead of two measurements included
+                    a2Cc = vstack((a2Cc, ones((1, iNumPix))*-999))
+                    a2ECc = vstack((a2ECc, ones((1, iNumPix))*-999))
                 ##> Stack data
                 a3Cc = dstack((a3Cc, a2Cc))
                 a3ECc = dstack((a3ECc, a2ECc))

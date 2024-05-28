@@ -40,11 +40,9 @@ def ConvertToCINDI3BlindFmt(par):
             for iSpec in par['dPan'][sPanC]:
                 dImp['panName'] = 'Pandora{}s{}'.format(sPanC, iSpec)
                 dImp['institute'], dImp['instNumber'] = par['dPanIdInst'][dImp['panName'][7:]]
-                dImp['headL1'] = par['dL1NHead'][sPanC + 's' + str(iSpec)][0]
-                dImp['specColL1'] = par['dL1CcCol'][sPanC + 's' + str(iSpec)][0]
                 # get L1 file psath
                 _, _, sPthL1 = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
-                                                       dImp['instNumber'], '', '',
+                                                       dImp['instNumber'], '', '', '',
                                                        dImp['sCode'], '')
                 # get version
                 sPthL1 = glob(os.path.join(par['sL1Pth'], sPthL1))[-1]
@@ -97,9 +95,9 @@ def ConvertToCINDI3BlindFmt(par):
                         if l2fit.time.size:
                             # get name of Cindi format file
                             sPthCindi, _, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
-                                                      dImp['instNumber'], dImp['prod'], dImp['prodVers'], dImp['sCode'], dImp['fCode'])
+                                                      dImp['instNumber'], dImp['prod'], CSB.refTypeSyn[dImp['refType']], dImp['prodVers'], dImp['sCode'], dImp['fCode'])
                             # create CINDI-3 file
-                            cindi = CINDI3SemiBlind(par['dCompCols'][sProd], par['fWvlINORM'], l1, l2fit, dImp,
+                            cindi = CINDI3SemiBlind(par['dCompCols'][sProd], par['fWvlINORM'], par['fWvlRef'], l1, l2fit, dImp,
                                                     sPthCindi, CSB.colAssignCindi3, par['dOvrwVZA'], par['dOvrwVAA'])
                             # get converted data columns and respective column description for the header
                             allCols, descrCols = cindi.buildupColumns()

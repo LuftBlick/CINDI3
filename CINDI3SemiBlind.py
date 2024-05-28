@@ -99,6 +99,8 @@ colAssignL2Fit ={
     'BrO_DSCD_223_Error': 'Independent uncertainty of bromine oxide  slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
     'HONO_DSCD_296': 'Nitrous acid slant column amount [moles per square meter], -9e99=fitting not successful',
     'HONO_DSCD_296_Error': 'Independent uncertainty of nitrous acid slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'Ring': 'Fitted Ring spectrum',
+    'Ring_Error': 'Independent uncertainty of fitted Ring spectrum',
     'RMS': 'rms of unweighted fitting residuals',
     'SHIFT': 'Retrieved total wavelength shift [nm], -9=no wavelength change fitting',
     'OFFSET': 'Offset polynomial coefficient, order 0',
@@ -106,32 +108,34 @@ colAssignL2Fit ={
 
 colAssignCindi3 ={
     'DOY': 'Col {:02d}: DOY: Day of year 2024, start with 1.0 for January 1st, 00:00 UTC (days since 2023-12-31 00:00 UTC)',
-    'UTC': 'Col {:02d}: UTC: UTC Time of day in hours',
-    'ACQT': 'Col {:02d}: ACQT: (Total Acquisition Time (s))',
-    'SZA': 'Col {:02d}: SZA: (Solar Zenith Angle (degree))',
-    'SAA': 'Col {:02d}: SAA: (Solar Azimuth Angle (degree) North=0, East=90)',
-    'VEA': 'Col {:02d}: VEA: (Viewing Elevation Angle (degree))',
-    'VAA': 'Col {:02d}: VAA: (Viewing Azimuth Angle (degree) North=0, East=90)',
-    'NO2_DSCD': 'Col {:02d}: NO2_DSCD_{} (1E15 molec/cm2)',
-    'NO2_DSCD_Error': 'Col {:02d}: NO2_DSCD_{}_Error (1E15 molec/cm2)',
-    'O4_DSCD': 'Col {:02d}: O4_DSCD_{} (1E40 molec2/cm5)',
-    'O4_DSCD_Error': 'Col {:02d}: O4_DSCD_{}_Error (1E40 molec2/cm5)',
-    'O3_DSCD': 'Col {:02d}: O3_DSCD_{} (1E20 molec/cm2)',
-    'O3_DSCD_Error': 'Col {:02d}: O3_DSCD_{}_Error (1E20 molec/cm2)',
-    'HCHO_DSCD': 'Col {:02d}: HCHO_DSCD_{} (1E15 molec/cm2)',
-    'HCHO_DSCD_Error':'Col {:02d}: HCHO_DSCD_{}_Error (1E15 molec/cm2)',
-    'BrO_DSCD': 'Col {:02d}: BrO_DSCD_{} (1E15 molec/cm2)',
-    'BrO_DSCD_Error': 'Col {:02d}: BrO_DSCD_{}_Error (1E15 molec/cm2)',
-    'SO2_DSCD': 'Col {:02d}: SO2_DSCD_{} (1E15 molec/cm2)',
-    'SO2_DSCD_Error': 'Col {:02d}: SO2_DSCD_{}_Error (1E15 molec/cm2)',
-    'CHOCHO_DSCD': 'Col {:02d}: CHOCHO_DSCD_{} (1E15 molec/cm2)',
-    'CHOCHO_DSCD_Error': 'Col {:02d}: CHOCHO_DSCD_{}_Error (1E15 molec/cm2)',
-    'HONO_DSCD': 'Col {:02d}: HONO_DSCD_{} (1E15 molec/cm2)',
-    'HONO_DSCD_Error': 'Col {:02d}: HONO_DSCD_{}_Error (1E15 molec/cm2)',
-    'RMS': 'Col {:02d}: RMS: Fit RMS in OD(1)',
+    'UTC': 'Col {:02d}: UTC: UTC Time of day (hours)',
+    'ACQT': 'Col {:02d}: ACQT: Total Acquisition Time (s)',
+    'SZA': 'Col {:02d}: SZA: Solar Zenith Angle (degree)',
+    'SAA': 'Col {:02d}: SAA: Solar Azimuth Angle (degree) North=0, East=90',
+    'VEA': 'Col {:02d}: VEA: Viewing Elevation Angle (degree)',
+    'VAA': 'Col {:02d}: VAA: Viewing Azimuth Angle (degree) North=0, East=90',
+    'NO2_DSCD': 'Col {:02d}: NO2_DSCD_{}: (1E15 molec/cm2)',
+    'NO2_DSCD_Error': 'Col {:02d}: NO2_DSCD_{}_Error: (1E15 molec/cm2)',
+    'O4_DSCD': 'Col {:02d}: O4_DSCD_{}: (1E40 molec2/cm5)',
+    'O4_DSCD_Error': 'Col {:02d}: O4_DSCD_{}_Error: (1E40 molec2/cm5)',
+    'O3_DSCD': 'Col {:02d}: O3_DSCD_{}: (1E20 molec/cm2)',
+    'O3_DSCD_Error': 'Col {:02d}: O3_DSCD_{}_Error: (1E20 molec/cm2)',
+    'HCHO_DSCD': 'Col {:02d}: HCHO_DSCD_{}: (1E15 molec/cm2)',
+    'HCHO_DSCD_Error':'Col {:02d}: HCHO_DSCD_{}_Error: (1E15 molec/cm2)',
+    'BrO_DSCD': 'Col {:02d}: BrO_DSCD_{}: (1E15 molec/cm2)',
+    'BrO_DSCD_Error': 'Col {:02d}: BrO_DSCD_{}_Error: (1E15 molec/cm2)',
+    'SO2_DSCD': 'Col {:02d}: SO2_DSCD_{}: (1E15 molec/cm2)',
+    'SO2_DSCD_Error': 'Col {:02d}: SO2_DSCD_{}_Error: (1E15 molec/cm2)',
+    'CHOCHO_DSCD': 'Col {:02d}: CHOCHO_DSCD_{}: (1E15 molec/cm2)',
+    'CHOCHO_DSCD_Error': 'Col {:02d}: CHOCHO_DSCD_{}_Error: (1E15 molec/cm2)',
+    'HONO_DSCD': 'Col {:02d}: HONO_DSCD_{}: (1E15 molec/cm2)',
+    'HONO_DSCD_Error': 'Col {:02d}: HONO_DSCD_{}_Error: (1E15 molec/cm2)',
+    'Ring': 'Col {:02d}: Ring: (1)',
+    'Ring_Error': 'Col {:02d}: Ring_Error: (1)',
+    'RMS': 'Col {:02d}: RMS: Fit RMS in OD (1)',
     'SHIFT': 'Col {:02d}: SHIFT: Spectrum shift (nm), against FRS reference',
-    'OFFSET': 'Col {:02d}: OFFSET: Intensity offset normalised by the mean intensity',
-    'INORM': 'Col {:02d}: INORM_{}:  Normalised Intensity counts/integration time at wavelength lambda',
+    'OFFSET': 'Col {:02d}: OFFSET: Intensity offset normalised by the mean intensity (1)',
+    'INORM': 'Col {:02d}: INORM_{}:  Normalised Intensity counts/integration time at wavelength lambda {} nm (1/s)',
 }
 
 colAssignL1 = {
@@ -244,9 +248,9 @@ def LatestFile(lPth, bIsL2Tot=False):
         lPth = [lPth[argmax(sum(asarray([lVersP1, lVersP2]), axis=0))]]
     return lPth
 
-def GetPths(sDate, sPan, sLoc, sInstituteC, sInstNum, sProcGas, sVers, sSCode, sFCode):
+def GetPths(sDate, sPan, sLoc, sInstituteC, sInstNum, sProcGas, sRef, sVers, sSCode, sFCode):
     # > File name CINDI2 format
-    sPthCindi = '{}_MAXDOAS_{}_{}_CINDI3_{}_v{}.asc'.format(sInstituteC, sInstNum, sProcGas, sDate, sVers)
+    sPthCindi = '{}_PANDORA_{}_{}_{}_CINDI3_{}_v{}.asc'.format(sInstituteC, sInstNum, sProcGas, sRef, sDate, sVers)
     # > File name Blick format
     sPthBlick = '{}_{}_{}_L2Fit_f{}*.txt'.format(sPan, sLoc, sDate, sFCode)
     # > L1 file in Blick format
@@ -256,9 +260,10 @@ def GetPths(sDate, sPan, sLoc, sInstituteC, sInstNum, sProcGas, sVers, sSCode, s
 
 class CINDI3SemiBlind:
 
-    def __init__(self, cols, iwvls, l1, l2fit, inp, pth, fmtColdDesc, ovrwVza, ovrwVaa):
+    def __init__(self, cols, iwvls, iwvlref, l1, l2fit, inp, pth, fmtColdDesc, ovrwVza, ovrwVaa):
         self.cols = cols
         self.iwvls = iwvls
+        self.iwvlref = iwvlref
         self.l1 = l1
         self.l2fit = l2fit
         self.inp = inp
@@ -292,8 +297,10 @@ class CINDI3SemiBlind:
                 # Extract hour and minute
                 hours = self.l2fit[datavar].time.dt.hour
                 minutes = self.l2fit[datavar].time.dt.minute
+                seconds = self.l2fit[datavar].time.dt.second
                 # Convert to decimal hour
-                decimal_hour = hours + minutes / 60.0
+                decimal_hour = hours + minutes / 60.0 + seconds / 3600.0
+
                 dataCols.append(list(decimal_hour.data))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[datavar].format(icol + 1))
@@ -314,10 +321,10 @@ class CINDI3SemiBlind:
                 dataCols.append(list(vaa))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[datavar].format(icol + 1))
-            elif '_Error' in datavar:
+            elif '_Error' in datavar and len(datavar.split('_')) == 4:
                 gas, Tx = datavar.split('_DSCD_')
                 if gas == 'O4':
-                    unitcf = gp.unitcf[1][5]
+                    unitcf = 2.75*10**-38  # from mol**2/m**5 to molec**2/cm**5
                 else:
                     unitcf = gp.unitcf[1][1]
                 Tx = Tx[:-6]
@@ -331,7 +338,7 @@ class CINDI3SemiBlind:
             elif '_DSCD_' in datavar:  # retrieved column amounts are (re)written
                 gas, Tx = datavar.split('_DSCD_')
                 if gas == 'O4':
-                    unitcf = gp.unitcf[1][5]
+                    unitcf = 2.75*10**-38  # from mol**2/m**5 to molec**2/cm**5
                 else:
                     unitcf = gp.unitcf[1][1]
                 Tx = float(Tx)
@@ -376,15 +383,19 @@ class CINDI3SemiBlind:
             l1stripRTNC = l1strip.isel(time=l1strip.RTNC == rtnc)
             dt = l1stripRTNC.isel(time=isin(l1stripRTNC.REPC.data, repcL2fit.data)).time.data
             dtEqual = append(dtEqual, dt)
-        # l1strip = self.l1.isel(time=isin(self.l1.RTNC, self.l2fit.RTNC) & isin(self.l1.REPC, self.l2fit.REPC))
         ### average
         l1stripavg = self.getAveragedSpectra(l1strip.sel(time=dtEqual))
         ### extract columns
         specCols = l1stripavg.sel(lam=self.iwvls, method='nearest').data
+        # add reference wavelength to the top
+        specCols = hstack((l1stripavg.sel(lam=self.iwvlref, method='nearest').data[:, None], specCols))
         # write column description
-        for wvl in self.iwvls:
+        for j, wvl in enumerate(append(self.iwvlref, self.iwvls)):  # first wavelength is reference wavelength for horizon scan. It should have no extension in the column name
             icol += 1
-            descrCols.append(self.fmtColdDesc['INORM'].format(icol + 1, int(wvl)))
+            if j == 0:
+                descrCols.append(self.fmtColdDesc['INORM'].format(icol + 1, int(wvl), int(wvl)).replace("_{}".format(int(wvl)), ''))
+            else:
+                descrCols.append(self.fmtColdDesc['INORM'].format(icol + 1, int(wvl), int(wvl)))
         descrCols.append(' ')
 
         # stack columns
@@ -438,7 +449,7 @@ class CINDI3SemiBlind:
             retrSet.append('   {}: {}'.format(gas, src))
 
         if self.fitPars['Ring'] != 'NO':
-            retrSet.append("   RING: High Resolution calculation with QDOAS according to Chance and Spurr (1997) and normalized as in Wagner et al. (2009)",)
+            retrSet.append("   Ring: High Resolution calculation with QDOAS according to Chance and Spurr (1997) and normalized as in Wagner et al. (2009)",)
 
         retrSet.append(' ')
 
@@ -453,14 +464,14 @@ class CINDI3SemiBlind:
             "LONGITUDE: 4.927 degree E",
             "ALTITUDE: -1 m asl",
             "INSTITUTE: {}".format(self.inp['institute']),
-            "INSTRUMENTTYPE: Pandora ({})".format(self.inp['panName']),
+            "INSTRUMENTTYPE: PANDORA",
             "INSTRUMENTNUMBER: {}".format(self.inp['instNumber']),
             "DATAPRODUCT: {}".format(self.inp['prod']),
             "PRODUCTDSCD: {}".format(prodMainProd[self.inp['prod']]),
             "REFTYPE: {}".format(refTypeSyn[self.inp['refType']]),
             "Missing value: -999",
             "Retrieval code: BlickP (v1.8.62, 1 April 2024)",
-            "Created by: Martin Tiefengraber",
+            "Created by: Martin Tiefengraber (LuftBlick)",
             "Version: v{}".format(self.inp['prodVers']),
             " ",
         ]

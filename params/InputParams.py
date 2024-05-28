@@ -1,7 +1,7 @@
 __author__ = 'Martin_Tiefengraber'
 
 from numpy import array
-from GetLineEntry import GetLineEntry
+from params.GetLineEntry import GetLineEntry
 
 
 def LoadParams(par):
@@ -46,12 +46,11 @@ def LoadParams(par):
         ['Product version number', 'dProdVers', 'dictint'],
         ['Calibration file suffixes', 'dCfSuffix', 'dictstring'],
         ['L2Fit file number of header lines', 'dProdNHead', 'dictint'],
-        ['L1 file number of header lines', 'dL1NHead', 'dictint'],
-        ['L1 file start of spectra column', 'dL1CcCol', 'dictint'],
         ['Institution and instrument number assignment', 'dPanIdInst', 'dictstring'],
         ['Analyze product', 'dProdAna', 'dictbool'],
         ['Columns in comparison data', 'dCompCols', 'dictstring'],
         ['Wavelengths for INORM', 'fWvlINORM', 'float'],
+        ['Reference wavelength for horizon scans', 'fWvlRef', 'float'],
     ])
     #> read processing parameters
     for parC in params:
