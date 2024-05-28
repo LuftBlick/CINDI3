@@ -115,7 +115,7 @@ class GetDataOfRoutine:
             assert res == 'OK', res
             res, lA, readinfo = io.read_data(sPthFle, colind, lLevCols, aline, [sRtn])
             if res != 'OK':
-                print res
+                print(res)
 
             lDataCmbRtns = []
             lDataRtns = []
@@ -185,4 +185,3 @@ if __name__ == '__main__':
                           [4, 0, 0])
     lDataCmb, lData, lCom = GD.GetDataOfRoutine("L5", dtDates, "0")
     lWvl, lCc, lECc, lCcInfo = GD.DoDataCorrectionOneDate(2048, 3, lDataCmb, lData, dtDates)
-    print
