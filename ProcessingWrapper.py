@@ -70,7 +70,7 @@ def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
             sFCodeRefNme = string_('Ref_' + sRefNme)
         else:
             sFCodeRefNme = sRefType
-        FCode['Reference'] = array([sFCodeRefNme], dtype='|S100')
+        FCode['Reference'] = array([sFCodeRefNme], dtype='|S300')
         pssetup['f_codes'][idxFCode] = FCode
 
     # For the O3VIS product, the processor has to run for both calibration files (Finkenzeller, 2022; ThalmanAndVolkamer, 2013)
