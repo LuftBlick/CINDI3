@@ -114,10 +114,10 @@ colAssignCindi3 ={
     'VAA': 'Col {:02d}: VAA: (Viewing Azimuth Angle (degree) North=0, East=90)',
     'NO2_DSCD': 'Col {:02d}: NO2_DSCD_{} (1E15 molec/cm2)',
     'NO2_DSCD_Error': 'Col {:02d}: NO2_DSCD_{}_Error (1E15 molec/cm2)',
-    'O4_DSCD': 'Col {:02d}: O4_DSCD_{} (1E15 molec/cm2)',
-    'O4_DSCD_Error': 'Col {:02d}: O4_DSCD_{}_Error (1E15 molec/cm2)',
-    'O3_DSCD': 'Col {:02d}: O3_DSCD_{} (1E15 molec/cm2)',
-    'O3_DSCD_Error': 'Col {:02d}: O3_DSCD_{}_Error (1E15 molec/cm2)',
+    'O4_DSCD': 'Col {:02d}: O4_DSCD_{} (1E40 molec2/cm5)',
+    'O4_DSCD_Error': 'Col {:02d}: O4_DSCD_{}_Error (1E40 molec2/cm5)',
+    'O3_DSCD': 'Col {:02d}: O3_DSCD_{} (1E20 molec/cm2)',
+    'O3_DSCD_Error': 'Col {:02d}: O3_DSCD_{}_Error (1E20 molec/cm2)',
     'HCHO_DSCD': 'Col {:02d}: HCHO_DSCD_{} (1E15 molec/cm2)',
     'HCHO_DSCD_Error':'Col {:02d}: HCHO_DSCD_{}_Error (1E15 molec/cm2)',
     'BrO_DSCD': 'Col {:02d}: BrO_DSCD_{} (1E15 molec/cm2)',
@@ -316,20 +316,31 @@ class CINDI3SemiBlind:
                 descrCols.append(self.fmtColdDesc[datavar].format(icol + 1))
             elif '_Error' in datavar:
                 gas, Tx = datavar.split('_DSCD_')
+                if gas == 'O4':
+                    unitcf = gp.unitcf[1][5]
+                else:
+                    unitcf = gp.unitcf[1][1]
                 Tx = Tx[:-6]
                 colDescKey = ''.join(datavar.split('_{}'.format(int(Tx))))
                 # get the scale factor
                 l, m, r = self.fmtColdDesc[colDescKey].rpartition('E')
                 scl = float(l[-1] + m + r[:2])
-                dataCols.append(list(self.l2fit[datavar].data / gp.unitcf[1][1] * scl))
+                dataCols.append(list(self.l2fit[datavar].data / unitcf / scl))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[colDescKey].format(icol + 1, int(Tx)))
             elif '_DSCD_' in datavar:  # retrieved column amounts are (re)written
                 gas, Tx = datavar.split('_DSCD_')
+                if gas == 'O4':
+                    unitcf = gp.unitcf[1][5]
+                else:
+                    unitcf = gp.unitcf[1][1]
                 Tx = float(Tx)
                 colDescKey = datavar.split('_{}'.format(int(Tx)))[0]
                 # check gas fitting method
                 tfitmeth = self.fitPars['Gas temps'][self.fitPars['Fitted gases'] == gas]
+                # get the scale factor
+                l, m, r = self.fmtColdDesc[colDescKey].partition('E')
+                scl = float(l[-1] + m + r[:2])
                 if tfitmeth == 'FIT':
                     Tref = gasRefTemps[gas]
                     # get second temperature
@@ -338,15 +349,12 @@ class CINDI3SemiBlind:
                         if (len(parts) == 3) and (parts[0] == gas) and (datavar2 != datavar):
                             Ty = float(parts[2])
                             Tlowhigh = sorted(array([Tx, Ty]))
-                    # get the scale factor
-                    l, m, r = self.fmtColdDesc[colDescKey].partition('E')
-                    scl = float(l[-1] + m + r[:2])
                     # convert DSCD and temp fit to two DSCD
                     DSCD_T = self.DSCDaTfit2DSCDs(self.l2fit[datavar].data, self.l2fit['{}_T'.format(gas)].data,
-                                                  Tlowhigh[0], Tlowhigh[1], Tref, scl/gp.unitcf[1][1])
+                                                  Tlowhigh[0], Tlowhigh[1], Tref, scl*unitcf)
                     dataCols.append(list(DSCD_T[Tx]))
                 else:  # use DSCD
-                    dataCols.append(list(self.l2fit[datavar].data))
+                    dataCols.append(list(self.l2fit[datavar].data  / unitcf / scl))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[datavar.split('_{}'.format(int(Tx)))[0]].format(icol + 1, int(Tx)))
             elif '_T' in datavar:  # retrieved temperature is not used directly

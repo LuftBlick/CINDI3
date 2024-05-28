@@ -66,6 +66,9 @@ def ConvertToCINDI3BlindFmt(par):
                             dImp['fitPars'][fitPar] = FCode[fitPar][0]
                         for fitPar in ['Fitted gases', 'Gas sources', 'Gas temps']:
                             dImp['fitPars'][fitPar] = asarray(FCode[fitPar][0].split(','))
+                    # overwrite O2O2 with O4, in case
+                    dImp['fitPars']['Fitted gases'][dImp['fitPars']['Fitted gases'] == 'O2O2'] = array(['O4'],
+                                                                                                       dtype='|S4')
                     dImp['prodVers'] = par['dProdVers'][sProd][0]
                     # select columns to be read from L2Fit file
                     colAssignUsed = {key:CSB.colAssignL2Fit[key] for key in par['dCompCols'][sProd]}
