@@ -121,10 +121,16 @@ class GetDataOfRoutine:
             lDataRtns = []
             lComRtns = []
             for lAC in lA:
-                lDataRtns.append(lAC)
+                # correct potential repetition count shift. Each routine has to start with repetition count = 1.
+                dRepCnt = 1 - lAC[0][1][2]
+                if dRepCnt != 0:
+                    for iAC in range(len(lAC)):
+                        lAC[iAC][1][2] = lAC[iAC][1][2] + dRepCnt
                 res, aa, comment = io.combine_data(lAC, lLevCols)
-                lDataCmbRtns.append(aa)
-                lComRtns.append(comment)
+                if all(diff(aa[1][:, 2]) == 1):  # only allow complete routines!
+                    lDataCmbRtns.append(aa)
+                    lDataRtns.append(lAC)
+                    lComRtns.append(comment)
             lDataCmb.append(lDataCmbRtns)
             lData.append(lDataRtns)
             lCom.append(lComRtns)

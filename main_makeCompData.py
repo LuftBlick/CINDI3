@@ -6,7 +6,7 @@ path = os.path.normpath("C:/Blick/src/")
 os.chdir(path)
 from os import path as ospath
 from numpy import array, argmin, hstack, savetxt, where, ones, polyval, unique, asarray, in1d, nan, isnan, \
-    nanmean, sum, nansum
+    nanmean, sum, nansum, isin
 from datetime import datetime, timedelta
 from matplotlib.dates import num2date, date2num
 from params.InputParams import LoadParams
@@ -74,6 +74,8 @@ def ConvertToCINDI3BlindFmt(par):
                     for gas in dImp['fitPars']['Fitted gases']:
                         if gas == 'O2O2':
                             gas = 'O4'
+                        if gas == 'GLY':
+                            gas = 'CHOCHO'
                         gasT = '{}_T'.format(gas)
                         colAssignUsed[gasT] = CSB.colAssignL2Fit[gasT]
                     ## add auxilariy information
@@ -84,15 +86,25 @@ def ConvertToCINDI3BlindFmt(par):
                     colAssignUsed['APM'] = 'Azimuth pointing mode'
                     colAssignUsed['SZA'] = 'Solar zenith angle for center-time of measurement in degree'
                     colAssignUsed['SAA'] = 'Solar azimuth for center-time of measurement in degree'
+                    colAssignUsed['PROCTYPE'] = 'Data processing type index'
                     # > Loop reference types:
                     for sRefType in par['dProdRefT'][sProd]:
                         dImp['refType'] = sRefType
                         dImp['procType'] = par['dProcType'][sRefType]
+                        # get data version
+                        _, sPthL2Fit, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
+                                                  dImp['instNumber'], '', '', '',
+                                                  '', dImp['fCode'])
+                        sPthL2Fit = glob(os.path.join(par['sL2FitPth'], sRefType, sPthL2Fit))[-1]
+                        sVers = sPthL2Fit.split(dImp['fCode'])[-1].split('p')[0][1:]
                         # load L2Fit data
                         l2fit = LoadData(os.path.join(par['sL2FitPth'], sRefType), [dImp['date']], dImp['loc'],
                                          dImp['panName'].partition('Pandora')[-1], 'L2Fit', sVers,
                                          [dImp['fCode']], colAssignUsed, doXArray=True)[dImp['fCode']]
                         if l2fit.time.size:
+                            # reduce to allowed processing types
+                            procTypes = [CSB.proctype2ref[procType] for procType in dImp['procType']]
+                            l2fit = l2fit.isel(time=isin(l2fit.PROCTYPE, procTypes))
                             # get name of Cindi format file
                             sPthCindi, _, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
                                                       dImp['instNumber'], dImp['prod'], CSB.refTypeSyn[dImp['refType']], dImp['prodVers'], dImp['sCode'], dImp['fCode'])
@@ -111,7 +123,7 @@ def ConvertToCINDI3BlindFmt(par):
                             # save file
                             savetxt(os.path.join(par['sCampPth'], sPthCindi), allCols, fmt='%.7e',
                                     comments='% ', delimiter=' ', header=allHeader[:-2])
-                            print('    ... for Pandora {}, s{}, Prod {}({}), Date {}'.format(sPanC, iSpec, sProd, dImp['fCode'], sDate))
+                            print('    ... for Pandora {}s{}, {}({}), Date {}'.format(sPanC, iSpec, sProd, dImp['fCode'], sDate))
 
     print('... finished converting to CINDI-3 blind format.')
 
@@ -323,6 +335,7 @@ def ProcessCompData(par):
                         #> Loop reference types:
                         for sRefType in par['dProdRefT'][sProd]:
                             for sCfSuffix in par['dCfSuffix'][sProd]:
+                                print('... Pandora {}s{}, product {} (fcode: {})'.format(int(sPanC), iSpec, sProd, sFCode))
                                 ProcessingWrapper('Pandora', int(sPanC), iSpec, par['sLoc'], sFCode, par['sOFPth'], par['sCFPth'],
                                                   par['sBlickRootPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
                                                   par['sL2FitPth'], par['sPFPth'], par['iDate'][0],

@@ -87,18 +87,22 @@ colAssignL2Fit ={
     'O3_DSCD_243_Error': 'Independent uncertainty of ozone slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
     'O3_DSCD_223_Error': 'Independent uncertainty of ozone slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
     'O3_T': 'Ozone effective temperature [K]',
-    'H2O_DSCD': 'Water vapor slant column amount [moles per square meter], -9e99=fitting not successful',
-    'H2O_DSCD_Error': 'Independent uncertainty of water vapor slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'H2O_DSCD_273': 'Water vapor slant column amount [moles per square meter], -9e99=fitting not successful',
+    'H2O_DSCD_273_Error': 'Independent uncertainty of water vapor slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
     'HCHO_DSCD_298': 'Formaldehyde slant column amount [moles per square meter], -9e99=fitting not successful',
     'HCHO_DSCD_298_Error': 'Independent uncertainty of formaldehyde slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'HCHO_T': 'Formaldehyde effective temperature [K]',
     'SO2_DSCD_298': 'Sulfur dioxide [moles per square meter], -9e99=fitting not successful',
     'SO2_DSCD_298_Error': 'Independent uncertainty of sulfur dioxide slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
-    'CHOCHO_DSCD_296': 'Glyoxal [moles per square meter], -9e99=fitting not successful',
+    'CHOCHO_DSCD_296': 'Glyoxal slant column amount [moles per square meter], -9e99=fitting not successful',
     'CHOCHO_DSCD_296_Error': 'Independent uncertainty of Glyoxal slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'CHOCHO_T': 'Glyoxal effective temperature [K]',
     'BrO_DSCD_223': 'Bromine oxide slant column amount [moles per square meter], -9e99=fitting not successful',
-    'BrO_DSCD_223_Error': 'Independent uncertainty of bromine oxide  slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'BrO_DSCD_223_Error': 'Independent uncertainty of bromine oxide slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'BrO_T': 'Bromine oxide effective temperature [K]',
     'HONO_DSCD_296': 'Nitrous acid slant column amount [moles per square meter], -9e99=fitting not successful',
     'HONO_DSCD_296_Error': 'Independent uncertainty of nitrous acid slant column amount [moles per square meter], -1=cross section is zero in this wavelength range, -3=spectral fitting was done, but no independent uncertainty could be retrieved, -5=no independent uncertainty input was given, -9=spectral fitting not successful',
+    'HONO_T': 'Nitrous acid effective temperature [K]',
     'Ring': 'Fitted Ring spectrum',
     'Ring_Error': 'Independent uncertainty of fitted Ring spectrum',
     'RMS': 'rms of unweighted fitting residuals',
@@ -130,6 +134,8 @@ colAssignCindi3 ={
     'CHOCHO_DSCD_Error': 'Col {:02d}: CHOCHO_DSCD_{}_Error: (1E15 molec/cm2)',
     'HONO_DSCD': 'Col {:02d}: HONO_DSCD_{}: (1E15 molec/cm2)',
     'HONO_DSCD_Error': 'Col {:02d}: HONO_DSCD_{}_Error: (1E15 molec/cm2)',
+    'H2O_DSCD': 'Col {:02d}: H2O_DSCD_{}: (1E20 molec/cm2)',
+    'H2O_DSCD_Error': 'Col {:02d}: H2O_DSCD_{}_Error: (1E20 molec/cm2)',
     'Ring': 'Col {:02d}: Ring: (1)',
     'Ring_Error': 'Col {:02d}: Ring_Error: (1)',
     'RMS': 'Col {:02d}: RMS: Fit RMS in OD (1)',
@@ -156,7 +162,7 @@ gasRefTemps = {
 prodMainProd = {
     'NO2VIS':'NO2_DSCD_294',
     'O4VIS':'O4_DSCD_',
-    'NO2VISSMALL':'NO2_DSCD_',
+    'NO2VIS-SMALL':'NO2_DSCD_',
     'CHOCHO':'CHOCHO_DSCD_',
     'O3VIS':'O3_DSCD_',
     'NO2UV':'NO2_DSCD_',
@@ -209,8 +215,8 @@ saveFmt ={
     'O3_DSCD_243_Error': '%.7e',
     'O3_DSCD_223_Error': '%.7e',
     'O3_T': '%.7e',
-    'H2O_DSCD': '%.7e',
-    'H2O_DSCD_Error': '%.7e',
+    'H2O_DSCD_273': '%.7e',
+    'H2O_DSCD_273_Error': '%.7e',
     'HCHO_DSCD_298': '%.7e',
     'HCHO_DSCD_298_Error': '%.7e',
     'SO2_DSCD_298': '%.7e',
@@ -290,7 +296,7 @@ class CINDI3SemiBlind:
 
                 # Calculate the decimal day of the year
                 decimal_day_of_year = day_of_year + (hour + minute / 60.0 + second / 3600.0) / 24.0
-                dataCols.append(list(decimal_day_of_year))
+                dataCols.append(list(decimal_day_of_year.data))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[datavar].format(icol + 1))
             elif datavar == 'UTC':
@@ -408,9 +414,9 @@ class CINDI3SemiBlind:
         nza = []
         for rtns in unique(self.l2fit['RTNC']):
             idx = self.l2fit['RTNC'] == rtns
-            nza = append(nza, nomAng[self.l2fit['RTN'].isel(time=idx).data[0]][
-                              :self.l2fit['REPC'].isel(time=idx).shape[0]])
-
+            nza = append(
+                nza, nomAng[self.l2fit['RTN'].isel(time=idx).data[0]][:self.l2fit['REPC'].isel(time=idx).shape[0]]
+            )
         return nza
 
     @staticmethod
