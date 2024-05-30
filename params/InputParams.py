@@ -45,7 +45,6 @@ def LoadParams(par):
         ['Product reference type', 'dProdRefT', 'dictstring'],
         ['Product version number', 'dProdVers', 'dictint'],
         ['Calibration file suffixes', 'dCfSuffix', 'dictstring'],
-        ['L2Fit file number of header lines', 'dProdNHead', 'dictint'],
         ['Institution and instrument number assignment', 'dPanIdInst', 'dictstring'],
         ['Analyze product', 'dProdAna', 'dictbool'],
         ['Columns in comparison data', 'dCompCols', 'dictstring'],
