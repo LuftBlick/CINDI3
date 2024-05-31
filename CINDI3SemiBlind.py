@@ -149,8 +149,17 @@ colAssignL1 = {
     'RTNC': 'Routine count',
     'REPC': 'Repetition count',
     'UTC': 'UT date and time for beginning of measurement',
+    'NCYB': 'Number of bright count cycles',
+    'SAT': 'Saturation index',
     'ACQT': 'Total duration of measurement set in seconds',
+    'WVL0': 'Retrieved wavelength change, order 0',
+    'WVL1': 'Retrieved wavelength change, order 1',
+    'WVLm': 'Mean wavelength correction applied',
+    'WVLfi': 'Wavelength change fitting result index',
+    'FW1ep': 'Effective position of filterwheel #1',
+    'FW2ep': 'Effective position of filterwheel #2',
     'INORM': 'L1 data for each pixel',
+    'INORNu': 'Independent instrumental uncertainty of L1 data for each pixel',
 }
 
 gasRefTemps = {
