@@ -6,21 +6,23 @@ path = os.path.normpath("C:/Blick/src/")
 os.chdir(path)
 from os import path as ospath
 from numpy import array, argmin, hstack, savetxt, where, ones, polyval, unique, asarray, in1d, nan, isnan, \
-    nanmean, sum, nansum, isin
+    nanmean, sum, nansum, isin, vstack
 from datetime import datetime, timedelta
 from matplotlib.dates import num2date, date2num
 from params.InputParams import LoadParams
 from GetDataOfRoutineBlick import GetDataOfRoutine
-from ProcessingWrapper import ProcessingWrapper
+from ProcessingWrapper import ProcessingWrapperL1, ProcessingWrapper
 from blick_countconverter import regrid_f
 from glob import glob
 import h5py
+from pandas import Timedelta, Timestamp
+
+from matplotlib.pyplot import *
 
 from blick_io import blick_io
 io = blick_io()
 
 from LoadData import LoadData
-
 
 from CINDI3SemiBlind import GetPths
 from CINDI3SemiBlind import CINDI3SemiBlind
@@ -92,6 +94,13 @@ def ConvertToCINDI3BlindFmt(par):
                                 colAssignUsed['SZA'] = 'Solar zenith angle for center-time of measurement in degree'
                                 colAssignUsed['SAA'] = 'Solar azimuth for center-time of measurement in degree'
                                 colAssignUsed['PROCTYPE'] = 'Data processing type index'
+                                ## TEMP
+                                # colAssignUsed['lam1'] = 'Lower limit used for wavelength scaling'
+                                # colAssignUsed['lam2'] = 'Upper limit used for wavelength scaling'
+                                colAssignUsed['wvl0'] = 'Wavelength change polynomial coefficient, order 0'
+                                colAssignUsed['wvl1'] = 'Wavelength change polynomial coefficient, order 1'
+                                colAssignUsed['res0'] = 'Resolution change polynomial coefficient, order 0'
+                                ##
                                 dImp['procType'] = par['dProcType'][sRefType]
                                 # get data version
                                 _, sPthL2Fit, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
@@ -184,143 +193,66 @@ def PickDataWithTimeRange(par, lVal, lValCmb):
 
 def ProcessExternalReference(par):
 
-    print('Start processing external reference ...')
-    dFuFiAll = {}
+    print('Start producing external reference ...')
     #> Loop Pandoras
     for sPanC in par['dPan']:
-        dFuFiAll[sPanC] = {}
         #> Loop spectrometers
         for iSpec in par['dPan'][sPanC]:
-            dFuFiAll[sPanC][iSpec] = {}
-            #> Loop s-numbers
-            for sSCode, iQSCode in zip(par['dSCode']['s'], par['dSCode']['qs']):
-                dFuFiAll[sPanC][iSpec][sSCode] = {}
-                GD = GetDataOfRoutine(int(sPanC), iSpec, par['sLoc'], par['sBlickRootPth'], par['sL0Pth'],
-                                      par['sOFPth'], par['sCFPth'], par['CfSuffixRef'], [sSCode, -1, -1], [iQSCode, -1, -1])
-                #> Reformat date vector
-                a1Date = array([datetime.strptime(str(par['iDate'][i]), '%Y%m%d')
-                                for i in range(len(par['iDate']))])
-                for sRtn, iRtnCnt in zip(par['sRefRtn'], par['iRtnCnt']):
-                    dFuFiAll[sPanC][iSpec][sSCode][sRtn] = {}
-                    lDataCmb, lData, _ = GD.GetDataOfRoutine(sRtn, a1Date, iLev='0')
-                    #> Delete empty dates (empty when routine not has not been measured)
-                    lGoodDates = []
-                    for iDateI in range(len(lData)):
-                        if len(lData[iDateI]) > 0:
-                            lGoodDates.append(iDateI)
-                        else:
-                            print('        ... {} skipped!').format(par['iDate'][iDateI])
-                    lData = [lData[i] for i in lGoodDates]
-                    lDataCmb = [lDataCmb[i] for i in lGoodDates]
-                    a1Date = a1Date[lGoodDates]
-                    par['iDate'] = par['iDate'][lGoodDates]
-                    par['sRefDateTime'] = par['sRefDateTime'][lGoodDates]
-                    if len(lData) > 0:
-                        #> Find measurements within wanted temporal range
-                        lData, lDataCmb, lDtUsed = PickDataWithTimeRange(par, lData, lDataCmb)
-                        #> Loop routines
-                        lWvl, lCc, lECc, lCcInfo = GD.DoDataCorrectionOneDate(2048, iRtnCnt, lDataCmb, lData, a1Date)
-                        #> Average data
-                        for iDateI in range(len(a1Date)):
-                            #> Load calibration file data
-                            calData, _, _, panPars = GD.GetCalData(a1Date[iDateI])
-                            # bPixReg = calData[-1][3][0]
-                            #> Get functional fiter positions used in measurements
-                            lFuFi = []
-                            for iRtnI in range(len(lDataCmb[iDateI])):
-                                for iMeasI in range(len(lDataCmb[iDateI][iRtnI][2])):
-                                    lFuFi.append(lDataCmb[iDateI][iRtnI][2][iMeasI][3])
-                            a1FuFiMea = unique(array(lFuFi))
-                            ##> Find name of functional filters used in measurements
-                            a1FuFiPosNme = asarray([c.split('-') for c in panPars[1][6]])
-                            a1FuFiPos = a1FuFiPosNme[:, 0].astype(int)
-                            a1FuFiNme = a1FuFiPosNme[:, 1]
-                            a1FuFiNme = a1FuFiNme[in1d(a1FuFiPos, a1FuFiMea)]
-                            ##> Remove OPAQUE
-                            a1FuFiMea = a1FuFiMea[~(a1FuFiNme=='OPAQUE')]
-                            a1FuFiNme = a1FuFiNme[~(a1FuFiNme=='OPAQUE')]
-                            ##> Fuse
-                            dFuFi = {}
-                            for iFuFi, sFuFi in zip(a1FuFiMea, a1FuFiNme):
-                                dFuFi[iFuFi] = sFuFi
-                            #> Nominel wavelength vector
-                            a1Wvl = lWvl[iDateI]
-                            #> Initial corrected wavelength vector
-                            dWvlCor = {}
-                            dCc = {}
-                            dECc = {}
-                            for sFuFi in a1FuFiNme:
-                                dWvlCor[sFuFi] = ones((a1Wvl.shape[0], lCc[iDateI].shape[2],
-                                                       lCc[iDateI].shape[0]/len(a1FuFiMea))) * \
-                                                       a1Wvl.reshape((a1Wvl.shape[0], 1, 1))
-                                dCc[sFuFi] = ones(dWvlCor[sFuFi].shape) * nan
-                                dECc[sFuFi] = ones(dWvlCor[sFuFi].shape) * nan
-                            #> Loop all routines and measurements within routines
-                            for iRtnI in range(lCc[iDateI].shape[2]):
-                                dFuFiCnt = {}
-                                for sFuFi in a1FuFiNme:
-                                    dFuFiCnt[sFuFi] = -1
-                                lToDel = []
-                                for iMeasI in range(lCc[iDateI].shape[0]):
-                                    #> Only use measuremnts with more than 1 cycle and no saturated data
-                                    if (lData[iDateI][iRtnI][iMeasI][4][0] > 1) and (lData[iDateI][iRtnI][iMeasI][4][2] >= 0):
-                                        #> Indentify functional filter
-                                        sFuFi = dFuFi[lDataCmb[iDateI][iRtnI][2][iMeasI * 2][3]]
-                                        dFuFiCnt[sFuFi] += 1
-                                        iMeasFuFiI = dFuFiCnt[sFuFi]
-                                        #> Calculate corrected wavelength vector
-                                        wlcpol = lCcInfo[iDateI][iRtnI][8][iMeasI][1][0]
-                                        if len(wlcpol) > 0:  # wavelength shift could be retrieved
-                                            a1DeltaWvl = polyval(wlcpol[::-1], a1Wvl - calData[8][0][0])
-                                            dWvlCor[sFuFi][:, iRtnI, iMeasFuFiI] = dWvlCor[sFuFi][:, iRtnI, iMeasFuFiI] + a1DeltaWvl
-                                        else:
-                                            lToDel.append(iRtnI)
-                                        #> Resave data for functional filter
-                                        dCc[sFuFi][:, iRtnI, iMeasFuFiI] = lCc[iDateI][iMeasI, :, iRtnI]
-                                        dECc[sFuFi][:, iRtnI, iMeasFuFiI] = lECc[iDateI][iMeasI, :, iRtnI]
-                                    else:
-                                        print('         ... measurement has to be skipped!')
-                            #> Loop functional filter and create average wavelength vector and spectrum, regrid and save
-                            for sFuFi in a1FuFiNme:
+            #> Loop dates
+            for iDateC, sDateRefC in zip(par['iDate'], par['sRefDateTime']):
+                sCode = par['dSCode']['s'][0]
+                print('   ... Pandora {}s{}, scode: {}, date {}'.format(
+                    int(sPanC), iSpec, sCode, iDateC))
+                # Process L1 data
+                ProcessingWrapperL1('Pandora', int(sPanC), iSpec, par['sLoc'], sCode, par['sOFPth'], par['sCFPth'],
+                                    par['sBlickRootPth'], par['sPFPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
+                                    par['sL2FitPth'], iDateC, par['CfSuffixRef'])
 
-                                print('    ... for Pandora {}, s{}, Routine {}, Date {}, FuncFilt {}')\
-                                    .format(sPanC, iSpec, sRtn, par['iDate'][iDateI], sFuFi)
+                # load data
+                # get L1 file psath
+                _, _, sPthL1 = GetPths(iDateC, 'Pandora{}s{}'.format(sPanC, iSpec), par['sLoc'], '',
+                                       '', '', '', '', sCode, '')
+                # get version
+                sPthL1 = glob(os.path.join(par['sL1Pth'], sPthL1))[-1]
+                sVers = sPthL1.split(sCode)[-1].split('p')[0][1:]
+                # load l1 data
+                l1 = LoadData(par['sL1Pth'], [iDateC], par['sLoc'], '{}s{}'.format(int(sPanC), iSpec),
+                              'L1', sVers, [sCode], CSB.colAssignL1, doXArray=True)[sCode]
+                # restrict to time range
+                start_time = Timestamp(sDateRefC) - Timedelta(minutes=float(par['iRefAvgInt']))
+                end_time = Timestamp(sDateRefC) + Timedelta(minutes=float(par['iRefAvgInt']))
+                l1 = l1.sel(time=slice(start_time, end_time))
+                # limit to reference routine
+                l1 = l1.isel(time=isin(l1.RTN, par['sRefRtn']))
+                # limit to routines where wavelength change could be retrieved
+                l1 = l1.isel(time=isin(l1.WVLfi, [0.]))
+                # remove saturated data (good data SAT == 0)
+                l1 = l1.isel(time=isin(l1.SAT, [0.]))
+                # avoid measurements with only one cycle
+                l1 = l1.isel(time=l1.NCYB > 1.)
 
-                                #> Make reference median wavelength vector and spectrum
-                                # print(nanmean(dECc[sFuFi][:, :, 0], axis=(0, 1)))
-                                ##> Intensity variation filter
-                                meanDev = (nanmean(dCc[sFuFi][:, :, 0], axis=0) - nanmean(dCc[sFuFi][:, :, 0], axis=(0, 1))) / \
-                                          nanmean(dCc[sFuFi][:, :, 0], axis=0)
-                                bUsed = abs(100. * meanDev) < par['varFilt']  # in percent
-                                a1WvlMean = nanmean(dWvlCor[sFuFi][:, bUsed, :], axis=(1, 2))
-                                a1CcMean = nanmean(dCc[sFuFi][:, bUsed, :], axis=(1, 2))
-                                a1ECcMean = nansum(dECc[sFuFi][:, bUsed, :]**2, axis=(1, 2))**0.5 / sum(bUsed)
-                                # a1ECcMean = nanmean(dECc[sFuFi][:, bUsed, :], axis=(1, 2))
-                                for iRtnI in range(dWvlCor[sFuFi].shape[1]):
-                                    for iMeasI in range(dWvlCor[sFuFi].shape[2]):
-                                        #> Regrid data to reference median
-                                        if not any(isnan(dCc[sFuFi][:, iRtnI, iMeasI])):
-                                            dCc[sFuFi][:, iRtnI, iMeasI] = regrid_f(dWvlCor[sFuFi][:, iRtnI, iMeasI],
-                                                                                    dCc[sFuFi][:, iRtnI, iMeasI],
-                                                                                    a1WvlMean, a1CcMean)
-                                            dECc[sFuFi][:, iRtnI, iMeasI] = regrid_f(dWvlCor[sFuFi][:, iRtnI, iMeasI],
-                                                                                     dECc[sFuFi][:, iRtnI, iMeasI],
-                                                                                     a1WvlMean, a1ECcMean)
-                                dCc[sFuFi] = nanmean(dCc[sFuFi], axis=(1, 2))
-                                dECc[sFuFi] = nanmean(dECc[sFuFi], axis=(1, 2))
-                                #> Save reference to file
-                                ##> Make path
-                                sRefNme = GetExternalReferenceFileName(par, sPanC, iSpec, sRtn, sFuFi, par['iDate'][iDateI],
-                                                                       par['sRefDateTime'][iDateI], sSCode)
-                                ##> Save
-                                savetxt(sRefNme, hstack((a1WvlMean.reshape(2048,1),
-                                                         dCc[sFuFi].reshape(2048,1),
-                                                         dECc[sFuFi].reshape(2048,1))))
-                            dFuFiAll[sPanC][iSpec][sSCode][sRtn][par['iDate'][iDateI]] = a1FuFiNme
-    par['FuFi'] = dFuFiAll
-    print('... finished processing external reference.')
+                # crop wavlengths to about 535 nm.
+                l1 = l1.sel(lam=slice(280, 535))
 
-    return par
+                # loop functional filter
+                for pos, sFuFi in zip([1, 2], ['OPEN', 'U340']):
+                    l1fufi = l1.isel(time=isin(l1.FW2ep, [pos]))
+                    sRefNme = GetExternalReferenceFileName(par, sPanC, iSpec, par['sRefRtn'][0], sFuFi, iDateC, sDateRefC, sCode)
+
+                    # measured wavelengths
+                    dLam = asarray([polyval(vstack((l1fufi.WVL1.data, l1fufi.WVL0.data))[:, i], l1fufi.lam - 350.) for i in range(l1fufi.WVL0.shape[0])])
+                    lamMeas = l1fufi.lam.data + dLam
+                    lamMeasMean = lamMeas.mean(0)
+                    # mean intensity
+                    intMean = l1fufi.INORM.mean('time').data
+                    # mean uncertainty
+                    intUncMean = (((l1fufi.INORNu**2).sum('time') ** 0.5) / l1fufi.INORNu.shape[0]).data
+
+                    # save reference
+                    savetxt(sRefNme, vstack((lamMeasMean, intMean, intUncMean)).T)
+
+    print('... finished producing external reference.')
+
 
 def ProcessCompData(par):
     print('Start processing data ...')
@@ -360,7 +292,7 @@ if __name__ == '__main__':
 
     #> Process external reference spectrum
     if par['doExtRef']:
-        par = ProcessExternalReference(par)
+        ProcessExternalReference(par)
 
     #> Process data
     if par['doProcData']:
