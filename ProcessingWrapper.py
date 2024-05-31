@@ -5,8 +5,8 @@ import shutil
 from copy import copy
 
 # Define the desired path
-path = os.path.normpath("C:/Blick/src")
-os.chdir(path)
+pathDir = os.path.normpath("C:/Blick/src")
+os.chdir(pathDir)
 from glob import glob
 from numpy import array, nan, where, argmax, ones, string_
 from datetime import datetime, date, timedelta
@@ -34,6 +34,32 @@ def close_h5_files(file_path):
         except ValueError:
             # Handle case where file ID is not valid
             pass
+
+
+def ProcessingWrapperL1(instrnam, instrnum, specnum, locname, scode, pthOF, pthCF, sBlickRootPth, pthPF,
+                        pthL0, pthL1, pthL2, pthL2Fit, currday, sCfSuffix):
+
+    #Initialize empty dictionary
+    dirs = {}
+
+    # Example of setting values, assuming you have specific values to assign
+    dirs['blick_dir'] = sBlickRootPth
+    dirs['data_dir_L0'] = pthL0
+    dirs['data_dir_L1'] = pthL1
+    dirs['data_dir_L2Fit'] = pthL2Fit
+    dirs['data_dir_L2'] = pthL2
+    dirs['data_dir_iof'] = sBlickRootPth + pthOF
+    dirs['data_dir_icf'] = sBlickRootPth + pthCF
+
+    # For the O3VIS product, the processor has to run for both calibration files (Finkenzeller, 2022; ThalmanAndVolkamer, 2013)
+    cal_file_name = instrnam + str(instrnum) + 's' + str(specnum) + '_CF_' + sCfSuffix + '.txt'
+
+    processor = create_processor_adv(dirs, instrnum, specnum, locname, None, None, scode, cal_file=cal_file_name,
+                                     proc_setup=pthPF, nuke_l2=True)
+
+    dd = str(currday)
+    dd = date(int(dd[:4]), int(dd[4:6]), int(dd[6:]))
+    processor.process_day(dd)
 
 
 def ProcessingWrapper(instrnam, instrnum, specnum, locname, fcode,
