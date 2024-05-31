@@ -14,10 +14,7 @@ def LoadParams(par):
         ['Date(s) to process [UTC]', 'iDate', 'int'],
         ['Spectral fitting reference datetime [UTC]', 'sRefDateTime', 'stringarray'],
         ['Average interval around reference datetime [min]', 'iRefAvgInt', 'int'],
-        ['Maximum allowed time delay of reference time to nearest measured spectrum [min]', 'iRefOffs', 'int'],
-        ['Intensity variation filter in percent', 'varFilt', 'float'],
         ['Spectral fitting reference from routine', 'sRefRtn', 'stringarray'],
-        ['Spectral fitting reference from routine number of measurements for routine', 'iRtnCnt', 'int'],
         ['L1 processing s-code', 'dSCode', 'dictstring'],
         ['Calibration file suffix for processing reference', 'CfSuffixRef', 'string'],
         ['Intensity wavelength average pm [nm]', 'fWvlIntAvg', 'float'],
@@ -27,6 +24,7 @@ def LoadParams(par):
         ['Calibration file directory', 'sCFPth', 'string'],
         ['Pslib directory', 'sPslibPth', 'string'],
         ['Reference data directory', 'sRefPth', 'string'],
+        ['Figure directory', 'sPlotPth', 'string'],
         ['L0 data directory', 'sL0Pth', 'string'],
         ['L1 data directory', 'sL1Pth', 'string'],
         ['L2 data directory', 'sL2Pth', 'string'],
@@ -43,7 +41,7 @@ def LoadParams(par):
         ['Viewing azimuth angles to overwrite', 'dOvrwVAA', 'dictfloat'],
         ['Product aliases for f codes', 'dProdFCode', 'dictstring'],
         ['Product reference type', 'dProdRefT', 'dictstring'],
-        ['Product version number', 'dProdVers', 'dictint'],
+        ['Product version number', 'dProdVers', 'dictfloat'],
         ['Calibration file suffixes', 'dCfSuffix', 'dictstring'],
         ['Institution and instrument number assignment', 'dPanIdInst', 'dictstring'],
         ['Analyze product', 'dProdAna', 'dictbool'],
@@ -56,7 +54,7 @@ def LoadParams(par):
         par[parC[1]] = GetLineEntry(par['paramsFile'], parC[0], par['delim'], parC[2])
 
     #> reshape parameters
-    for parC in ['iDate', 'sRefDateTime', 'sRefRtn', 'iRtnCnt']:
+    for parC in ['iDate', 'sRefDateTime', 'sRefRtn']:
         if par[parC].shape == ():
             par[parC] = par[parC].reshape(1, )
 
