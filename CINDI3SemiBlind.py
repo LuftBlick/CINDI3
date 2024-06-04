@@ -148,6 +148,7 @@ colAssignL1 = {
     'RTN': 'Two letter code of measurement routine',
     'RTNC': 'Routine count',
     'REPC': 'Repetition count',
+    'INT': 'Integration time',
     'UTC': 'UT date and time for beginning of measurement',
     'NCYB': 'Number of bright count cycles',
     'SAT': 'Saturation index',
@@ -178,7 +179,7 @@ prodMainProd = {
     'O4UV':'O4_DSCD_293',
     'HCHO':'HCHO_DSCD_298',
     'HONO':'HONO_DSCD_296',
-    'O3UV':'O3_DSCD_243',
+    'O3UV':'O3_DSCD_223',
     'BrO':'BrO_DSCD_223',
     'NO2EXT':'NO2_DSCD_294',
     'H2OEXT':'H2O_DSCD_273',
@@ -275,7 +276,7 @@ def GetPths(sDate, sPan, sLoc, sInstituteC, sInstNum, sProcGas, sRef, sVers, sSC
 
 class CINDI3SemiBlind:
 
-    def __init__(self, cols, iwvls, iwvlref, l1, l2fit, inp, pth, fmtColdDesc, ovrwVza, ovrwVaa):
+    def __init__(self, cols, iwvls, iwvlref, l1, l2fit, inp, pth, fmtColdDesc, ovrwVza, ovrwVaa, missValue):
         self.cols = cols
         self.iwvls = iwvls
         self.iwvlref = iwvlref
@@ -287,8 +288,9 @@ class CINDI3SemiBlind:
         self.fmtColdDesc = fmtColdDesc
         self.ovrwVza = ovrwVza
         self.ovrwVaa = ovrwVaa
+        self.missValue = missValue
 
-    def buildupColumns(self):
+    def buildupColumns(self, prodMainProd):
 
         # loop columns
         dataCols = []
@@ -347,7 +349,16 @@ class CINDI3SemiBlind:
                 # get the scale factor
                 l, m, r = self.fmtColdDesc[colDescKey].rpartition('E')
                 scl = float(l[-1] + m + r[:2])
-                dataCols.append(list(self.l2fit[datavar].data / unitcf / scl))
+                # extract main temperature value
+                mainProd = [p for p in unique(unique(prodMainProd.values())).tolist() if p.startswith(gas)][0]
+                _, _, Tmain = mainProd.split('_')
+                Tmain = float(Tmain)
+                # only include the "main temperature"
+                if Tmain == float(Tx):
+                    dataNew = self.l2fit[datavar].data / unitcf / scl
+                else:
+                    dataNew = array(ones(self.l2fit[datavar].data.shape[0])) * self.missValue
+                dataCols.append(list(dataNew))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[colDescKey].format(icol + 1, int(Tx)))
             elif '_DSCD_' in datavar:  # retrieved column amounts are (re)written
@@ -363,7 +374,7 @@ class CINDI3SemiBlind:
                 # get the scale factor
                 l, m, r = self.fmtColdDesc[colDescKey].partition('E')
                 scl = float(l[-1] + m + r[:2])
-                if tfitmeth == 'FIT':
+                if tfitmeth == 'FIT':  # split DSCDs to two temperatures
                     Tref = gasRefTemps[gas]
                     # get second temperature
                     for datavar2 in self.cols:
@@ -376,7 +387,16 @@ class CINDI3SemiBlind:
                                                   Tlowhigh[0], Tlowhigh[1], Tref, scl*unitcf)
                     dataCols.append(list(DSCD_T[Tx]))
                 else:  # use DSCD
-                    dataCols.append(list(self.l2fit[datavar].data  / unitcf / scl))
+                    # extract main temperature value
+                    mainProd = [p for p in unique(unique(prodMainProd.values())).tolist() if p.startswith(gas)][0]
+                    _, _, Tmain = mainProd.split('_')
+                    Tmain = float(Tmain)
+                    # only include the "main temperature"
+                    if Tmain == Tx:
+                        dataNew = self.l2fit[datavar].data  / unitcf / scl
+                    else:
+                        dataNew = array(ones(self.l2fit[datavar].data.shape[0])) * self.missValue
+                    dataCols.append(list(dataNew))
                 # write column description:
                 descrCols.append(self.fmtColdDesc[datavar.split('_{}'.format(int(Tx)))[0]].format(icol + 1, int(Tx)))
             elif '_T' in datavar:  # retrieved temperature is not used directly
@@ -431,10 +451,12 @@ class CINDI3SemiBlind:
     @staticmethod
     def DSCDaTfit2DSCDs(SC, T, Tlow, Thigh, Tref, scl):
 
-        SChigh = SC * (T - Tref) / (Thigh - Tlow)
+        xT = (T - Tref) / (Thigh - Tlow)  # is it Tlow instead of Tref?
+
+        SChigh = SC * xT
         SChigh /= scl
 
-        SClow = SC * (1 - (T - Tref) / (Thigh - Tlow))
+        SClow = SC * (1 - xT)
         SClow /= scl
 
         return {Tlow: SClow, Thigh: SChigh}
@@ -484,7 +506,7 @@ class CINDI3SemiBlind:
             "DATAPRODUCT: {}".format(self.inp['prod']),
             "PRODUCTDSCD: {}".format(prodMainProd[self.inp['prod']]),
             "REFTYPE: {}".format(refTypeSyn[self.inp['refType']]),
-            "Missing value: -999",
+            "Missing value: {}".format(self.missValue),
             "Retrieval code: BlickP (v1.8.62, 1 April 2024)",
             "Created by: Martin Tiefengraber (LuftBlick)",
             "Version: v{}".format(self.inp['prodVers']),

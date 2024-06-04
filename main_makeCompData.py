@@ -100,6 +100,7 @@ def ConvertToCINDI3BlindFmt(par):
                                 colAssignUsed['wvl0'] = 'Wavelength change polynomial coefficient, order 0'
                                 colAssignUsed['wvl1'] = 'Wavelength change polynomial coefficient, order 1'
                                 colAssignUsed['res0'] = 'Resolution change polynomial coefficient, order 0'
+                                colAssignUsed['fitres'] = 'Fitting result index'
                                 ##
                                 dImp['procType'] = par['dProcType'][sRefType]
                                 # get data version
@@ -116,14 +117,17 @@ def ConvertToCINDI3BlindFmt(par):
                                     # reduce to allowed processing types
                                     procTypes = [CSB.proctype2ref[procType] for procType in dImp['procType']]
                                     l2fit = l2fit.isel(time=isin(l2fit.PROCTYPE, procTypes))
+                                    # remove values with fitres != 0
+                                    l2fit = l2fit.isel(time=isin(l2fit.fitres, [0]))
                                     # get name of Cindi format file
                                     sPthCindi, _, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
                                                               dImp['instNumber'], dImp['prod'], CSB.refTypeSyn[dImp['refType']], dImp['prodVers'], dImp['sCode'], sFCode)
                                     # create CINDI-3 file
                                     cindi = CINDI3SemiBlind(par['dCompCols'][sProd], par['fWvlINORM'], par['fWvlRef'], l1, l2fit, dImp,
-                                                            sPthCindi, CSB.colAssignCindi3, par['dOvrwVZA'], par['dOvrwVAA'])
+                                                            sPthCindi, CSB.colAssignCindi3, par['dOvrwVZA'], par['dOvrwVAA'],
+                                                            par['missValue'])
                                     # get converted data columns and respective column description for the header
-                                    allCols, descrCols = cindi.buildupColumns()
+                                    allCols, descrCols = cindi.buildupColumns(CSB.prodMainProd)
                                     # get header retrieval settings
                                     headRetrSet = cindi.headerRetrSet()
                                     # get header for general information
@@ -146,49 +150,6 @@ def GetExternalReferenceFileName(par, sPanC, iSpec, sRtn, sFuFi, iDate, sDateRef
                                   par['iRefAvgInt'], iDate, iSCode))
 
     return sRefNme
-
-
-def PickDataWithTimeRange(par, lVal, lValCmb):
-
-    lValRef = []
-    lValRefCmb = []
-    lDtUsed = []
-    for iDate in range(len(lVal)):
-        lValRefDate = []
-        lValRefCmbDate = []
-        #> Generate date time vector
-        ##> Datetime and remove time zone
-        a1Dt = array([num2date((lVal[iDate][i][0][1][0] + date2num(par['epoch'])*24.*3600.)/(24.*3600.)).replace(tzinfo=None)
-                      for i in range(len(lVal[iDate]))])
-        #> Get datetime range
-        ##> Reference date
-        a1DtRef = array([datetime.strptime(par['sRefDateTime'][i], '%Y%m%dT%H%M%SZ')
-                         for i in range(len(par['sRefDateTime']))])
-        if a1DtRef.shape[0] == 1:  # use the same reference for all days
-            iDate = 0
-        #>  Get averaging interval
-        ##> Check maximum allowed distance to reference time
-        a1DtRefBest = a1Dt[argmin(abs(a1Dt - a1DtRef[iDate]))]
-        assert (a1DtRefBest >= a1DtRef[iDate] - timedelta(minutes=int(par['iRefOffs']))) & \
-               (a1DtRefBest <= a1DtRef[iDate] + timedelta(minutes=int(par['iRefOffs']))), \
-            'Wanted reference time (from {}) not within maximum boundaries (p/m {} min.)!'. \
-            format(par['sRefDateTime'][iDate], int(par['iRefOffs']))
-        ##> Get averagint interval
-        bId = (a1Dt >= a1DtRefBest - timedelta(minutes=int(par['iRefAvgInt']))) & \
-              (a1Dt <= a1DtRefBest + timedelta(minutes=int(par['iRefAvgInt'])))
-        ##> Check if averaging interval contains data
-        assert any(bId), \
-            'Wanted closest reference time (from {}, p/m {} min.) not included in the data!'. \
-            format(a1DtRefBest, int(par['iRefAvgInt']))
-        #> Extract data for reference and average
-        for iRtn in where(bId)[0]:
-            lValRefDate.append(lVal[iDate][iRtn])
-            lValRefCmbDate.append(lValCmb[iDate][iRtn])
-        lValRef.append(lValRefDate)
-        lValRefCmb.append(lValRefCmbDate)
-        lDtUsed.append(a1Dt[bId])
-
-    return lValRef, lValRefCmb, lDtUsed
 
 
 def ProcessExternalReference(par):
