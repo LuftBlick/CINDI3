@@ -130,7 +130,7 @@ def get_data(par):
     return data
 
 
-def compare_data(data, pltpar):
+def compare_data_timeseries(data, pltpar):
 
     days = []
     pans = []
@@ -162,7 +162,10 @@ def compare_data(data, pltpar):
                     ax = np.ravel(ax)
                     for pan in pans:
                         di = data[day][pan][prod][ref]
+                        # time restriction
                         di = di.isel(time=(di.time.dt.hour >= pltpar['h_start']) & (di.time.dt.hour < pltpar['h_end']))
+                        # exclude negative VEA
+                        di = di.isel(time=di.VEA >= 0.)
                         for axi, data_var in zip(ax, data_vars):
                             if data_var in pltpar['dolog']:
                                 scale = 'log'
@@ -171,12 +174,13 @@ def compare_data(data, pltpar):
                             di[data_var].plot(ax=axi, label=pan, yscale=scale,
                                               linestyle='none', marker='o', markersize=pltpar['masi'])
                             axi.set_title(data_var)
+                            axi.grid()
 
                     ax[0].legend(loc=2, bbox_to_anchor=(0,1.3), frameon=0, ncol=3)
                     plt.suptitle('{}, {}, {}'.format(day, prod, ref), fontsize=pltpar['fssupt'], y=1.05)
                     plt.tight_layout()
 
-                    figname = 'TimeSeries_{}_{}_{}.png'.format(day, prod, ref)
+                    figname = 'TimeSeries_{}_{}(v{})_{}.png'.format(day, prod, pltpar['vers'][prod][0], ref)
                     plt.savefig(os.path.join(pltpar['plotpath'], figname), dpi=pltpar['dpi'], bbox_inches='tight')
 
 
@@ -202,8 +206,10 @@ if __name__ == '__main__':
         'h_start': 5,
         'h_end': 19,
         'fssupt': 15,
+        'vers': par['dProdVers'],
         'dolog': ['RMS'],
+        'showErrors': False,
         'skip': ['DOY', 'UTC', 'VEA', 'VAA', 'INORM_280', 'INORM_290', 'INORM_300', 'INORM_310', 'INORM_320', 'INORM_330', 'INORM_340', 'INORM_350', 'INORM_360', 'INORM_370', 'INORM_380', 'INORM_390', 'INORM_400', 'INORM_410', 'INORM_420', 'INORM_430', 'INORM_440', 'INORM_450', 'INORM_460', 'INORM_470', 'INORM_480', 'INORM_490', 'INORM_500', 'INORM_510', 'INORM_520', 'INORM_530']
     }
 
-    compare_data(data, pltpar)
+    compare_data_timeseries(data, pltpar)
