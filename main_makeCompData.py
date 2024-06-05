@@ -131,7 +131,7 @@ def ConvertToCINDI3BlindFmt(par):
                                     # get header retrieval settings
                                     headRetrSet = cindi.headerRetrSet()
                                     # get header for general information
-                                    headGeneral = cindi.headerGeneral(CSB.prodMainProd, CSB.refTypeSyn)
+                                    headGeneral = cindi.headerGeneral(CSB.prodMainProd, CSB.refTypeSyn, par['comment'])
                                     #build full header
                                     allHeader = ''.join([line + '\n' for line in headGeneral + headRetrSet + descrCols])
 

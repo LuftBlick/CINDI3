@@ -48,6 +48,8 @@ def LoadParams(par):
         ['Columns in comparison data', 'dCompCols', 'dictstring'],
         ['Wavelengths for INORM', 'fWvlINORM', 'float'],
         ['Reference wavelength for horizon scans', 'fWvlRef', 'float'],
+        ['Missing value', 'missValue', 'float'],
+        ['Comment to be added in CINDI3 format', 'comment', 'string'],
     ])
     #> read processing parameters
     for parC in params:

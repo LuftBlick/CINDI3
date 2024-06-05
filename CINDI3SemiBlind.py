@@ -451,7 +451,7 @@ class CINDI3SemiBlind:
     @staticmethod
     def DSCDaTfit2DSCDs(SC, T, Tlow, Thigh, Tref, scl):
 
-        xT = (T - Tref) / (Thigh - Tlow)  # is it Tlow instead of Tref?
+        xT = (T - Tlow) / (Thigh - Tlow)  # is it Tlow instead of Tref?
 
         SChigh = SC * xT
         SChigh /= scl
@@ -492,7 +492,7 @@ class CINDI3SemiBlind:
 
         return retrSet
     
-    def headerGeneral(self, prodMainProd, refTypeSyn):
+    def headerGeneral(self, prodMainProd, refTypeSyn, comment):
 
         generalInfo = [
             "CAMPAIGNNAME: CINDI3",
@@ -510,6 +510,7 @@ class CINDI3SemiBlind:
             "Retrieval code: BlickP (v1.8.62, 1 April 2024)",
             "Created by: Martin Tiefengraber (LuftBlick)",
             "Version: v{}".format(self.inp['prodVers']),
+            "comment: {}".format(comment),
             " ",
         ]
 
