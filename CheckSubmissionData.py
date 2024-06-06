@@ -219,7 +219,7 @@ def compare_data_scatter(data, pltpar):
                     f, ax = plt.subplots(ndv, pltpar['colsscatter'], constrained_layout=True,
                                          figsize=(pltpar['fpartwidthscatter']*pltpar['colsscatter'], ndv*pltpar['fpartheightscatter']))
                     ax = np.ravel(ax)
-                    panref = 'Pandora83s1'
+                    panref = pltpar['panRef']
                     # prepare reference:
                     diref = data[day][panref][prod][ref]
                     # time restriction
@@ -239,9 +239,9 @@ def compare_data_scatter(data, pltpar):
                             diint = di.interp(time=diref.time)
 
                             for axi, data_var in zip(ax, data_vars):
-                                sns.scatterplot(x=diref[data_var], y=diint[data_var], ax=axi, label=pan, size=diref['VEA'])
-                                # axi.scatter(diref[data_var], diint[data_var], label=pan, s=diref['VEA'])
-                                # axi.grid(True, zorder=0)
+                                size = 90.-diref['VEA']
+                                size = size.rename('VZA')
+                                sns.scatterplot(x=diref[data_var], y=diint[data_var], ax=axi, label=pan, size=size)
                                 axi.set_aspect('equal', 'box')
 
                                 max_tick = max(axi.get_xticks().max(), axi.get_yticks().max())
@@ -278,13 +278,98 @@ def compare_data_scatter(data, pltpar):
                     handles, labels = ax[0].get_legend_handles_labels()
                     f.legend(handles, labels, loc='center left', bbox_to_anchor=(1.05, 0.5), frameon=False,
                              ncol=1, fontsize=pltpar.get('legend_fontsize', 10))
-                    # f.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), frameon=False,
-                    #          ncol=len(pans)-1, fontsize=pltpar.get('legend_fontsize', 10))
-                    # f.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), frameon=False,
-                    #          ncol=len(pans)-1, fontsize=pltpar.get('legend_fontsize', 10))
                     plt.suptitle('{}, {}, {}'.format(day, prod, ref), fontsize=pltpar['fssupt'], y=1.05)
 
                     figname = 'Scatter_{}_{}(v{})_{}.png'.format(day, prod, pltpar['vers'][prod][0], ref)
+                    plt.savefig(os.path.join(pltpar['plotpath'], figname), dpi=pltpar['dpi'], bbox_inches='tight')
+                    plt.close()
+
+
+def compare_data_reldiff(data, pltpar):
+
+    days = []
+    pans = []
+    prods = []
+    refs = []
+    for day in data:
+        days.append(day)
+        for pan in data[day]:
+            pans.append(pan)
+            for prod in data[day][pan]:
+                prods.append(prod)
+                for ref in data[day][pan][prod]:
+                    refs.append(ref)
+    days = list(np.unique(np.array(days)))
+    pans = list(np.unique(np.array(pans)))
+    prods = list(np.unique(np.array(prods)))
+    refs = list(np.unique(np.array(refs)))
+
+    for day in days:
+        for prod in prods:
+            for ref in refs:
+                if ref in data[day][pans[0]][prod].keys():
+                    di = data[day][pans[0]][prod]['Ref']
+                    data_vars = [dv for dv in di.data_vars.keys() if dv not in pltpar['skipreldiff']]
+                    if not pltpar['showErrors']:
+                        data_vars = [dv for dv in data_vars if "Error" not in dv]
+                    ndv = np.int(np.ceil(float(len(data_vars)) / float(pltpar['colsscatter'])))
+
+                    f, ax = plt.subplots(ndv, pltpar['colsscatter'], sharex='all', constrained_layout=True,
+                                         figsize=(pltpar['fpartwidthscatter']*pltpar['colsscatter'], ndv*pltpar['fpartheightscatter']))
+                    ax = np.ravel(ax)
+                    panref = pltpar['panRef']
+                    # prepare reference:
+                    diref = data[day][panref][prod][ref]
+                    # time restriction
+                    diref = diref.isel(
+                        time=(diref.time.dt.hour >= pltpar['h_start']) & (diref.time.dt.hour < pltpar['h_end']))
+                    # exclude negative VEA
+                    diref = diref.isel(time=diref.VEA >= 0.)
+
+                    for i, pan in enumerate(pans):
+                        if pan != panref:
+                            di = data[day][pan][prod][ref]
+                            # time restriction
+                            di = di.isel(time=(di.time.dt.hour >= pltpar['h_start']) & (di.time.dt.hour < pltpar['h_end']))
+                            # exclude negative VEA
+                            di = di.isel(time=di.VEA >= 0.)
+                            # interpolate to reference
+                            diint = di.interp(time=diref.time)
+
+                            for axi, data_var in zip(ax, data_vars):
+                                reldif = 100.*(diint[data_var]/diref[data_var] - 1.)
+                                reldif = reldif.dropna(dim='time')
+                                size = 90.-diref['VEA'].sel(time=reldif.time)
+                                size = size.rename('VZA')
+                                sns.scatterplot(x=reldif.time, y=reldif, ax=axi, label=pan, size=size)
+
+                                # Rotate the x-tick labels by 90 degrees
+                                axi.tick_params(axis='x', rotation=90)
+
+                                axi.set_title(diref[data_var].attrs['long_name'].split(',')[0])
+                                axi.set_xlabel('time')
+                                axi.set_ylabel('rel. diff to {} [%]'.format(panref))
+
+                                # Set background to light gray
+                                axi.set_facecolor('lightgray')
+
+                                axi.set_ylim(pltpar['reldifflims'])
+                                axi.set_xlim([reldif.time[0].data, reldif.time[-1].data])
+
+                                # Remove the legend from each subplot
+                                axi.legend_.remove()
+
+                    # Hide unused subplots
+                    for axi in ax[len(data_vars):]:
+                        f.delaxes(axi)
+
+                    # Move legend outside the subplots
+                    handles, labels = ax[0].get_legend_handles_labels()
+                    f.legend(handles, labels, loc='center left', bbox_to_anchor=(1.05, 0.5), frameon=False,
+                             ncol=1, fontsize=pltpar.get('legend_fontsize', 10))
+                    plt.suptitle('{}, {}, {}'.format(day, prod, ref), fontsize=pltpar['fssupt'], y=1.05)
+
+                    figname = 'RelDiff_{}_{}(v{})_{}.png'.format(day, prod, pltpar['vers'][prod][0], ref)
                     plt.savefig(os.path.join(pltpar['plotpath'], figname), dpi=pltpar['dpi'], bbox_inches='tight')
                     plt.close()
 
@@ -318,9 +403,13 @@ if __name__ == '__main__':
         'dolog': ['RMS'],
         'legend_fontsize': 10,
         'showErrors': False,
-        'skip': ['DOY', 'UTC', 'VEA', 'VAA', 'INORM_280', 'INORM_290', 'INORM_300', 'INORM_310', 'INORM_320', 'INORM_330', 'INORM_340', 'INORM_350', 'INORM_360', 'INORM_370', 'INORM_380', 'INORM_390', 'INORM_400', 'INORM_410', 'INORM_420', 'INORM_430', 'INORM_440', 'INORM_450', 'INORM_460', 'INORM_470', 'INORM_480', 'INORM_490', 'INORM_500', 'INORM_510', 'INORM_520', 'INORM_530'],
+        'panRef': 'Pandora83s1',
+        'reldifflims': [-100, 100],
+        'skip': ['DOY', 'UTC', 'VAA', 'SAA', 'INORM_280', 'INORM_290', 'INORM_300', 'INORM_310', 'INORM_320', 'INORM_330', 'INORM_340', 'INORM_350', 'INORM_360', 'INORM_370', 'INORM_380', 'INORM_390', 'INORM_400', 'INORM_410', 'INORM_420', 'INORM_430', 'INORM_440', 'INORM_450', 'INORM_460', 'INORM_470', 'INORM_480', 'INORM_490', 'INORM_500', 'INORM_510', 'INORM_520', 'INORM_530'],
         'skipscatter': ['DOY', 'UTC', 'ACQT', 'SZA', 'SAA', 'RMS', 'VEA', 'VAA', 'NO2_DSCD_220', 'NO2_DSCD_220_Error', 'O3_DSCD_243', 'O3_DSCD_243_Error', 'O4_DSCD_223', 'O4_DSCD_223_Error', 'INORM', 'INORM_280', 'INORM_290', 'INORM_300', 'INORM_310', 'INORM_320', 'INORM_330', 'INORM_340', 'INORM_350', 'INORM_360', 'INORM_370', 'INORM_380', 'INORM_390', 'INORM_400', 'INORM_410', 'INORM_420', 'INORM_430', 'INORM_440', 'INORM_450', 'INORM_460', 'INORM_470', 'INORM_480', 'INORM_490', 'INORM_500', 'INORM_510', 'INORM_520', 'INORM_530'],
+        'skipreldiff': ['DOY', 'UTC', 'ACQT', 'SZA', 'SAA', 'RMS', 'VEA', 'VAA', 'OFFSET', 'SHIFT', 'NO2_DSCD_220', 'NO2_DSCD_220_Error', 'O3_DSCD_243', 'O3_DSCD_243_Error', 'O4_DSCD_223', 'O4_DSCD_223_Error', 'INORM', 'INORM_280', 'INORM_290', 'INORM_300', 'INORM_310', 'INORM_320', 'INORM_330', 'INORM_340', 'INORM_350', 'INORM_360', 'INORM_370', 'INORM_380', 'INORM_390', 'INORM_400', 'INORM_410', 'INORM_420', 'INORM_430', 'INORM_440', 'INORM_450', 'INORM_460', 'INORM_470', 'INORM_480', 'INORM_490', 'INORM_500', 'INORM_510', 'INORM_520', 'INORM_530'],
     }
 
     compare_data_timeseries(data, pltpar)
     compare_data_scatter(data, pltpar)
+    compare_data_reldiff(data, pltpar)
