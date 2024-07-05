@@ -177,6 +177,7 @@ prodMainProd = {
     'O3VIS':'O3_DSCD_223',
     'NO2UV':'NO2_DSCD_294',
     'O4UV':'O4_DSCD_293',
+    'HCHO-WIDE':'HCHO_DSCD_298',
     'HCHO':'HCHO_DSCD_298',
     'HONO':'HONO_DSCD_296',
     'O3UV':'O3_DSCD_223',
@@ -189,6 +190,7 @@ prodMainProd = {
 
 refTypeSyn = {
     'Ref': 'DAILYREF',
+    'RefFix': 'FIXREF',
     'MeasLow': 'SEQREF',
     'MeasHigh': 'SEQREF',
     'SyntRef': 'DSREF',

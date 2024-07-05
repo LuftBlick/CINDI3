@@ -70,76 +70,75 @@ def ConvertToCINDI3BlindFmt(par):
                                     dImp['fitPars'][fitPar] = FCode[fitPar][0]
                                 for fitPar in ['Fitted gases', 'Gas sources', 'Gas temps']:
                                     dImp['fitPars'][fitPar] = asarray(FCode[fitPar][0].split(','))
-                            if FCode['Reference'][0].upper().startswith(sRefType.upper()):
-                                # overwrite O2O2 with O4, in case
-                                dImp['fitPars']['Fitted gases'][dImp['fitPars']['Fitted gases'] == 'O2O2'] = array(['O4'],
-                                                                                                                   dtype='|S4')
-                                dImp['prodVers'] = par['dProdVers'][sProd][0]
-                                # select columns to be read from L2Fit file
-                                colAssignUsed = {key:CSB.colAssignL2Fit[key] for key in par['dCompCols'][sProd]}
-                                ## add temperature
-                                for gas in dImp['fitPars']['Fitted gases']:
-                                    if gas == 'O2O2':
-                                        gas = 'O4'
-                                    if gas == 'GLY':
-                                        gas = 'CHOCHO'
-                                    gasT = '{}_T'.format(gas)
-                                    colAssignUsed[gasT] = CSB.colAssignL2Fit[gasT]
-                                ## add auxilariy information
-                                colAssignUsed['RTN'] = 'Two letter code of measurement routine'
-                                colAssignUsed['RTNC'] = 'Routine count'
-                                colAssignUsed['REPC'] = 'Repetition count'
-                                colAssignUsed['ZPM'] = 'Zenith pointing mode'
-                                colAssignUsed['APM'] = 'Azimuth pointing mode'
-                                colAssignUsed['SZA'] = 'Solar zenith angle for center-time of measurement in degree'
-                                colAssignUsed['SAA'] = 'Solar azimuth for center-time of measurement in degree'
-                                colAssignUsed['PROCTYPE'] = 'Data processing type index'
-                                ## TEMP
-                                # colAssignUsed['lam1'] = 'Lower limit used for wavelength scaling'
-                                # colAssignUsed['lam2'] = 'Upper limit used for wavelength scaling'
-                                colAssignUsed['wvl0'] = 'Wavelength change polynomial coefficient, order 0'
-                                colAssignUsed['wvl1'] = 'Wavelength change polynomial coefficient, order 1'
-                                colAssignUsed['res0'] = 'Resolution change polynomial coefficient, order 0'
-                                colAssignUsed['fitres'] = 'Fitting result index'
-                                ##
-                                dImp['procType'] = par['dProcType'][sRefType]
-                                # get data version
-                                _, sPthL2Fit, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
-                                                          dImp['instNumber'], '', '', '',
-                                                          '', sFCode)
-                                sPthL2Fit = glob(os.path.join(par['sL2FitPth'], sRefType, sPthL2Fit))[-1]
-                                sVers = sPthL2Fit.split(sFCode)[-1].split('p')[0][1:]
-                                # load L2Fit data
-                                l2fit = LoadData(os.path.join(par['sL2FitPth'], sRefType), [dImp['date']], dImp['loc'],
-                                                 dImp['panName'].partition('Pandora')[-1], 'L2Fit', sVers,
-                                                 [sFCode], colAssignUsed, doXArray=True)[sFCode]
-                                if l2fit.time.size:
-                                    # reduce to allowed processing types
-                                    procTypes = [CSB.proctype2ref[procType] for procType in dImp['procType']]
-                                    l2fit = l2fit.isel(time=isin(l2fit.PROCTYPE, procTypes))
-                                    # remove values with fitres != 0
-                                    l2fit = l2fit.isel(time=isin(l2fit.fitres, [0]))
-                                    # get name of Cindi format file
-                                    sPthCindi, _, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
-                                                              dImp['instNumber'], dImp['prod'], CSB.refTypeSyn[dImp['refType']], dImp['prodVers'], dImp['sCode'], sFCode)
-                                    # create CINDI-3 file
-                                    cindi = CINDI3SemiBlind(par['dCompCols'][sProd], par['fWvlINORM'], par['fWvlRef'], l1, l2fit, dImp,
-                                                            sPthCindi, CSB.colAssignCindi3, par['dOvrwVZA'], par['dOvrwVAA'],
-                                                            par['missValue'])
-                                    # get converted data columns and respective column description for the header
-                                    allCols, descrCols = cindi.buildupColumns(CSB.prodMainProd)
-                                    # get header retrieval settings
-                                    headRetrSet = cindi.headerRetrSet()
-                                    # get header for general information
-                                    headGeneral = cindi.headerGeneral(CSB.prodMainProd, CSB.refTypeSyn, par['comment'])
-                                    #build full header
-                                    allHeader = ''.join([line + '\n' for line in headGeneral + headRetrSet + descrCols])
+                            # overwrite O2O2 with O4, in case
+                            dImp['fitPars']['Fitted gases'][dImp['fitPars']['Fitted gases'] == 'O2O2'] = array(['O4'],
+                                                                                                               dtype='|S4')
+                            dImp['prodVers'] = par['dProdVers'][sProd][0]
+                            # select columns to be read from L2Fit file
+                            colAssignUsed = {key:CSB.colAssignL2Fit[key] for key in par['dCompCols'][sProd]}
+                            ## add temperature
+                            for gas in dImp['fitPars']['Fitted gases']:
+                                if gas == 'O2O2':
+                                    gas = 'O4'
+                                if gas == 'GLY':
+                                    gas = 'CHOCHO'
+                                gasT = '{}_T'.format(gas)
+                                colAssignUsed[gasT] = CSB.colAssignL2Fit[gasT]
+                            ## add auxilariy information
+                            colAssignUsed['RTN'] = 'Two letter code of measurement routine'
+                            colAssignUsed['RTNC'] = 'Routine count'
+                            colAssignUsed['REPC'] = 'Repetition count'
+                            colAssignUsed['ZPM'] = 'Zenith pointing mode'
+                            colAssignUsed['APM'] = 'Azimuth pointing mode'
+                            colAssignUsed['SZA'] = 'Solar zenith angle for center-time of measurement in degree'
+                            colAssignUsed['SAA'] = 'Solar azimuth for center-time of measurement in degree'
+                            colAssignUsed['PROCTYPE'] = 'Data processing type index'
+                            ## TEMP
+                            # colAssignUsed['lam1'] = 'Lower limit used for wavelength scaling'
+                            # colAssignUsed['lam2'] = 'Upper limit used for wavelength scaling'
+                            colAssignUsed['wvl0'] = 'Wavelength change polynomial coefficient, order 0'
+                            colAssignUsed['wvl1'] = 'Wavelength change polynomial coefficient, order 1'
+                            colAssignUsed['res0'] = 'Resolution change polynomial coefficient, order 0'
+                            colAssignUsed['fitres'] = 'Fitting result index'
+                            ##
+                            dImp['procType'] = par['dProcType'][sRefType]
+                            # get data version
+                            _, sPthL2Fit, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
+                                                      dImp['instNumber'], '', '', '',
+                                                      '', sFCode)
+                            sPthL2Fit = glob(os.path.join(par['sL2FitPth'], sRefType, sPthL2Fit))[-1]
+                            sVers = sPthL2Fit.split(sFCode)[-1].split('p')[0][1:]
+                            # load L2Fit data
+                            l2fit = LoadData(os.path.join(par['sL2FitPth'], sRefType), [dImp['date']], dImp['loc'],
+                                             dImp['panName'].partition('Pandora')[-1], 'L2Fit', sVers,
+                                             [sFCode], colAssignUsed, doXArray=True)[sFCode]
+                            if l2fit.time.size:
+                                # reduce to allowed processing types
+                                procTypes = [CSB.proctype2ref[procType] for procType in dImp['procType']]
+                                l2fit = l2fit.isel(time=isin(l2fit.PROCTYPE, procTypes))
+                                # remove values with fitres != 0
+                                l2fit = l2fit.isel(time=isin(l2fit.fitres, [0]))
+                                # get name of Cindi format file
+                                sPthCindi, _, _ = GetPths(dImp['date'], dImp['panName'], dImp['loc'], dImp['institute'],
+                                                          dImp['instNumber'], dImp['prod'], CSB.refTypeSyn[dImp['refType']], dImp['prodVers'], dImp['sCode'], sFCode)
+                                # create CINDI-3 file
+                                cindi = CINDI3SemiBlind(par['dCompCols'][sProd], par['fWvlINORM'], par['fWvlRef'], l1, l2fit, dImp,
+                                                        sPthCindi, CSB.colAssignCindi3, par['dOvrwVZA'], par['dOvrwVAA'],
+                                                        par['missValue'])
+                                # get converted data columns and respective column description for the header
+                                allCols, descrCols = cindi.buildupColumns(CSB.prodMainProd)
+                                # get header retrieval settings
+                                headRetrSet = cindi.headerRetrSet()
+                                # get header for general information
+                                headGeneral = cindi.headerGeneral(CSB.prodMainProd, CSB.refTypeSyn, par['comment'])
+                                #build full header
+                                allHeader = ''.join([line + '\n' for line in headGeneral + headRetrSet + descrCols])
 
-                                    # save file
-                                    savetxt(os.path.join(par['sCampPth'], sPthCindi), allCols, fmt='%.7e',
-                                            comments='% ', delimiter=' ', header=allHeader[:-2])
-                                    print('   ... Pandora {}s{}, product {}, reftype {}, (fcode: {}), date {}'.format(
-                                        int(sPanC), iSpec, sProd, sRefType, sFCode, sDate))
+                                # save file
+                                savetxt(os.path.join(par['sCampPth'], sPthCindi), allCols, fmt='%.7e',
+                                        comments='% ', delimiter=' ', header=allHeader[:-2])
+                                print('   ... Pandora {}s{}, product {}, reftype {}, (fcode: {}), date {}'.format(
+                                    int(sPanC), iSpec, sProd, sRefType, sFCode, sDate))
 
     print('... finished converting to CINDI-3 blind format.')
 
@@ -161,23 +160,24 @@ def ProcessExternalReference(par):
         for iSpec in par['dPan'][sPanC]:
             #> Loop dates
             for iDateC, sDateRefC in zip(par['iDate'], par['sRefDateTime']):
+                iDateRefC = int(sDateRefC[:8])
                 sCode = par['dSCode']['s'][0]
-                print('   ... Pandora {}s{}, scode: {}, date {}'.format(
-                    int(sPanC), iSpec, sCode, iDateC))
+                print('   ... Pandora {}s{}, scode: {}, for date {}, using ref from date {}'.format(
+                    int(sPanC), iSpec, sCode, iDateC, sDateRefC))
                 # Process L1 data
                 ProcessingWrapperL1('Pandora', int(sPanC), iSpec, par['sLoc'], sCode, par['sOFPth'], par['sCFPth'],
                                     par['sBlickRootPth'], par['sPFPth'], par['sL0Pth'], par['sL1Pth'], par['sL2Pth'],
-                                    par['sL2FitPth'], iDateC, par['CfSuffixRef'])
+                                    par['sL2FitPth'], iDateRefC, par['CfSuffixRef'])
 
                 # load data
                 # get L1 file psath
-                _, _, sPthL1 = GetPths(iDateC, 'Pandora{}s{}'.format(sPanC, iSpec), par['sLoc'], '',
+                _, _, sPthL1 = GetPths(iDateRefC, 'Pandora{}s{}'.format(sPanC, iSpec), par['sLoc'], '',
                                        '', '', '', '', sCode, '')
                 # get version
                 sPthL1 = glob(os.path.join(par['sL1Pth'], sPthL1))[-1]
                 sVers = sPthL1.split(sCode)[-1].split('p')[0][1:]
                 # load l1 data
-                l1 = LoadData(par['sL1Pth'], [iDateC], par['sLoc'], '{}s{}'.format(int(sPanC), iSpec),
+                l1 = LoadData(par['sL1Pth'], [iDateRefC], par['sLoc'], '{}s{}'.format(int(sPanC), iSpec),
                               'L1', sVers, [sCode], CSB.colAssignL1, doXArray=True)[sCode]
                 # restrict to time range
                 start_time = Timestamp(sDateRefC) - Timedelta(minutes=float(par['iRefAvgInt']))
